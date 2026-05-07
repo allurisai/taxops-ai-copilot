@@ -1,14 +1,20 @@
+import re
 from dataclasses import dataclass
 from functools import lru_cache
-import re
 from typing import Optional
 
-import faiss
+try:
+    import faiss
+    FAISS_AVAILABLE = True
+except ImportError:
+    FAISS_AVAILABLE = False
+
 try:
     from sentence_transformers import SentenceTransformer
     EMBEDDINGS_AVAILABLE = True
-except ImportError:
+except (ImportError, OSError):
     EMBEDDINGS_AVAILABLE = False
+    SentenceTransformer = None
 
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
@@ -59,10 +65,12 @@ class LocalVectorStore:
 
 @lru_cache(maxsize=1)
 def get_embedding_model():
-    """Load the sentence-transformer model once and reuse it."""
     if not EMBEDDINGS_AVAILABLE:
         return None
-    return SentenceTransformer(EMBEDDING_MODEL_NAME, local_files_only=True)
+    try:
+        return SentenceTransformer(EMBEDDING_MODEL_NAME, local_files_only=True)
+    except Exception:
+        return None
 
 
 def _embed_texts(texts):
@@ -119,39 +127,27 @@ def _keyword_overlap_score(question, chunk_text):
 
 
 def build_vector_store(documents):
-    """Create a FAISS vector store from chunked documents, with keyword fallback if needed."""
     if not documents:
         raise ValueError("No documents were available to index.")
 
-    if not EMBEDDINGS_AVAILABLE:
-        return LocalVectorStore(
-            index=None,
-            chunks=documents,
-            use_embeddings=False,
-            retrieval_mode="Keyword fallback",
-        )
+    if EMBEDDINGS_AVAILABLE and FAISS_AVAILABLE:
+        try:
+            texts = [document["search_text"] for document in documents]
+            embeddings = _embed_texts(texts)
+            embedding_dimension = embeddings.shape[1]
+            index = faiss.IndexFlatIP(embedding_dimension)
+            index.add(embeddings)
+            return LocalVectorStore(
+                index=index, chunks=documents,
+                use_embeddings=True, retrieval_mode="Semantic retrieval",
+            )
+        except Exception:
+            pass
 
-    try:
-        texts = [document["search_text"] for document in documents]
-        embeddings = _embed_texts(texts)
-        embedding_dimension = embeddings.shape[1]
-
-        index = faiss.IndexFlatIP(embedding_dimension)
-        index.add(embeddings)
-
-        return LocalVectorStore(
-            index=index,
-            chunks=documents,
-            use_embeddings=True,
-            retrieval_mode="Semantic retrieval",
-        )
-    except Exception:
-        return LocalVectorStore(
-            index=None,
-            chunks=documents,
-            use_embeddings=False,
-            retrieval_mode="Keyword fallback",
-        )
+    return LocalVectorStore(
+        index=None, chunks=documents,
+        use_embeddings=False, retrieval_mode="Keyword fallback",
+    )
 
 
 def search_vector_store(vector_store, question, k=3):

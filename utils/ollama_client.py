@@ -69,6 +69,5 @@ def query_ollama(prompt, model=DEFAULT_OLLAMA_MODEL):
         return _query_google_cloud(prompt)
     except Exception as cloud_error:
         raise RuntimeError(
-            "Could not reach Ollama locally or the cloud API. "
-            "Please run: ollama serve"
+            f"Could not reach Ollama locally or the cloud API. Error: {cloud_error}"
         ) from cloud_error
