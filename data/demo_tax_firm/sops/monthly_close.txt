@@ -1,0 +1,14 @@
+MONTHLY CLOSE SOP
+
+Objective:
+Complete a reliable monthly close for bookkeeping clients.
+
+Step 1: Confirm all bank, credit card, and payment processor feeds have synced.
+Step 2: Review uncategorized transactions and clear duplicate imports.
+Step 3: Reconcile bank accounts and investigate any unmatched balance.
+Step 4: Review payroll, owner draws, loan activity, and sales tax entries.
+Step 5: Compare the current month profit and loss statement to the prior month for unusual swings.
+Step 6: Prepare the close summary and note any follow-up items for the client.
+
+Control note:
+Do not finalize the close if material transactions are still uncategorized.

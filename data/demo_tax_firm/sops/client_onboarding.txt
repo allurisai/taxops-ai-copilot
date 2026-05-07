@@ -1,0 +1,14 @@
+CLIENT ONBOARDING SOP
+
+Purpose:
+Standardize the onboarding process for new tax and bookkeeping clients.
+
+Step 1: Create the client record in the CRM and assign the service owner.
+Step 2: Send the engagement letter, bookkeeping access request, and secure document checklist.
+Step 3: Collect prior-year tax returns, entity documents, payroll reports, and bank or credit card access.
+Step 4: Confirm accounting system access, including QuickBooks Online or the client bookkeeping portal.
+Step 5: Hold a kickoff call to review reporting cadence, open bookkeeping issues, and current filing deadlines.
+Step 6: Mark onboarding complete only after the source documents are received and the kickoff checklist is signed off.
+
+Escalation:
+If bookkeeping access is still missing after five business days, escalate to the client lead and send a reminder.

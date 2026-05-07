@@ -1,0 +1,17 @@
+CLIENT ABC FINANCIAL SUMMARY
+
+Period:
+Quarter 1
+
+Highlights:
+- Revenue grew 18 percent compared with the prior quarter.
+- Gross margin remained healthy.
+- Year-to-date profit is approximately $142,000.
+
+Bookkeeping Risks:
+- Repeated uncategorized software and travel expenses.
+- Duplicate bank-feed imports caused temporary overstatement of expense totals.
+- Owner reimbursements were not consistently supported with receipts.
+
+Planning Note:
+Because profits are above $100,000, the team should review the current S corporation tax planning strategy.

@@ -1,0 +1,16 @@
+BOOKKEEPING CLEANUP SOP
+
+Purpose:
+Guide the team when transactions arrive with weak descriptions, missing categories, or duplicate imports.
+
+Workflow:
+1. Review uncategorized transactions every week before the monthly close.
+2. Match the vendor name against prior categorizations and normalize obvious vendor aliases.
+3. If the expense is still unclear, move it into a temporary Review Needed bucket and request support from the client.
+4. Escalate any uncategorized transaction over $500 or any repeated unknown vendor to the account manager.
+5. Reclassify the transaction only after support is received or an approved prior pattern exists.
+6. Document the final category decision in the review notes so the same issue can be handled consistently next time.
+
+Duplicate handling:
+- Remove duplicate bank feed imports before final reporting.
+- If a duplicate cannot be confirmed, leave the row flagged for human review.

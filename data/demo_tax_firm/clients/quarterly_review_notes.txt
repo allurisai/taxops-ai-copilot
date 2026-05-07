@@ -1,0 +1,15 @@
+QUARTERLY REVIEW NOTES
+
+Client:
+ABC Creative LLC
+
+Observations:
+- Revenue remains strong, but bookkeeping cleanup is taking longer than expected because of repeated missing categories.
+- Travel and software expenses are mostly valid, but several descriptions are too vague for final posting.
+- Estimated tax planning should be reviewed because profits are above the prior planning threshold.
+- Cash flow is healthy, though owner reimbursements should be documented earlier in the month.
+
+Next Steps:
+- Clean duplicate imports
+- Request missing support for contractor and owner reimbursement items
+- Review whether the current S corporation compensation remains reasonable

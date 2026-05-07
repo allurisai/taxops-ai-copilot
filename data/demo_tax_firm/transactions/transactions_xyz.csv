@@ -1,0 +1,11 @@
+Date,Vendor,Description,Amount,Category,Memo
+2026-03-01,Shell,Fuel purchase route 3,126.14,fuel,
+2026-03-03,Chevron,Fuel purchase route 4,118.92,fuel,
+2026-03-05,Best Buy,Tablet for field scheduling,684.00,office supplies,
+2026-03-07,QuickBooks,Monthly subscription,95.00,software,
+2026-03-09,Verizon,Mobile service,312.44,utilities,
+2026-03-11,Unknown Vendor,ACH debit no detail,830.00,,
+2026-03-12,Unknown Vendor,ACH debit no detail,830.00,,
+2026-03-16,Legal Services,Contract review,1200.00,professional services,
+2026-03-20,Amazon,Replacement tools,402.10,office supplies,
+2026-03-25,Lyft,Travel to client warehouse,54.66,travel,
