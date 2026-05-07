@@ -157,20 +157,29 @@ def _apply_page_style():
         """
         <style>
             /* ── Global font & base ─────────────────────────────────────── */
-            /* Scope the font override to content areas only — NOT icon elements.
-               Applying it to [class*="st-"] globally breaks Streamlit's Material
-               Icons ligatures (e.g. the sidebar toggle shows raw icon name text). */
             html, body, .main .block-container, [class*="css"] {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
                              'Helvetica Neue', Arial, sans-serif;
             }
-            /* Restore Material Icons font for Streamlit's icon/header buttons */
-            [data-testid="collapsedControl"],
-            [data-testid="collapsedControl"] button,
-            button[data-testid="baseButton-header"],
-            button[data-testid="baseButton-header"] span,
-            header button, header span {
-                font-family: 'Material Icons', 'Material Icons Outlined' !important;
+
+            /* ── Fix sidebar toggle icon text rendering ──────────────────
+               Streamlit's sidebar collapse button uses Material Icons ligatures.
+               When the font is overridden those render as raw text like
+               "keyboard_double_arrow_right". Hide the text and inject a
+               plain Unicode arrow so the button remains visible and clickable. */
+            [data-testid="collapsedControl"] span,
+            button[data-testid="baseButton-header"] span {
+                font-size: 0 !important;
+                visibility: hidden !important;
+            }
+            [data-testid="collapsedControl"] button::after,
+            button[data-testid="baseButton-header"]::after {
+                content: "›";
+                font-size: 1.4rem;
+                font-weight: 700;
+                visibility: visible !important;
+                color: #64748b;
+                font-family: serif;
             }
             .stApp { background: #f1f5f9; }
             .block-container {
