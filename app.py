@@ -152,30 +152,32 @@ def _initialize_session_state():
 
 
 def _apply_page_style():
-    """Apply product-level styling so the app feels polished and recruiter-ready."""
+    """Apply corporate professional styling."""
     st.markdown(
         """
         <style>
-            /* ---- App background ---- */
-            .stApp {
-                background: linear-gradient(160deg, #eef2f7 0%, #e8edf5 55%, #f0f4f8 100%);
+            /* ── Global font & base ─────────────────────────────────────── */
+            html, body, [class*="css"], [class*="st-"] {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                             'Helvetica Neue', Arial, sans-serif !important;
             }
+            .stApp { background: #f1f5f9; }
             .block-container {
                 max-width: 1200px;
-                padding-top: 0.8rem;
-                padding-bottom: 2rem;
+                padding-top: 1rem;
+                padding-bottom: 2.5rem;
             }
 
-            /* ---- Sidebar ---- */
+            /* ── Sidebar ────────────────────────────────────────────────── */
             section[data-testid="stSidebar"] {
-                min-width: 272px !important;
-                max-width: 272px !important;
-                background: #f8fafc;
+                min-width: 260px !important;
+                max-width: 260px !important;
+                background: #ffffff;
                 border-right: 1px solid #e2e8f0;
             }
             section[data-testid="stSidebar"] > div {
-                min-width: 272px !important;
-                max-width: 272px !important;
+                min-width: 260px !important;
+                max-width: 260px !important;
             }
             [data-testid="stSidebar"] .block-container {
                 padding-top: 1rem;
@@ -183,328 +185,326 @@ def _apply_page_style():
                 padding-right: 1rem;
             }
 
-            /* ---- Tabs ---- */
-            [data-testid="stTabs"] button {
-                border-radius: 12px;
-                padding: 0.78rem 1rem;
-                font-weight: 600;
-                color: #334155;
-                background: transparent;
-                border: 1px solid transparent;
+            /* ── Tabs — clean underline style ───────────────────────────── */
+            [data-testid="stTabs"] {
+                border-bottom: 1px solid #e2e8f0;
             }
+            [data-testid="stTabs"] button {
+                border-radius: 0;
+                padding: 0.65rem 1.1rem;
+                font-weight: 500;
+                font-size: 0.875rem;
+                color: #64748b;
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -1px;
+            }
+            [data-testid="stTabs"] button:hover { color: #1e293b; }
             [data-testid="stTabs"] button[aria-selected="true"] {
-                background: #ffffff;
-                color: #0f172a;
-                border-color: #dbe3ee;
-                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+                color: #2563eb;
+                border-bottom: 2px solid #2563eb;
+                background: transparent;
+                box-shadow: none;
+                font-weight: 600;
             }
 
-            /* ---- Buttons ---- */
+            /* ── Buttons ────────────────────────────────────────────────── */
             div.stButton > button {
-                border-radius: 12px;
-                padding: 0.68rem 1rem;
-                font-weight: 600;
-                border: 1px solid #d8e0ea;
-                background: white;
-                color: #0f172a;
-                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-                transition: box-shadow 0.15s ease, transform 0.1s ease;
+                border-radius: 6px;
+                padding: 0.5rem 0.95rem;
+                font-weight: 500;
+                font-size: 0.875rem;
+                border: 1px solid #e2e8f0;
+                background: #ffffff;
+                color: #1e293b;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
             }
             div.stButton > button:hover {
-                box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
-                transform: translateY(-1px);
+                background: #f8fafc;
+                border-color: #cbd5e1;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.08);
             }
             div.stButton > button[kind="primary"] {
-                background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%);
-                color: white;
-                border-color: #1e3a5f;
-                box-shadow: 0 4px 14px rgba(30, 58, 95, 0.3);
+                background: #2563eb;
+                color: #ffffff;
+                border-color: #2563eb;
+                box-shadow: 0 1px 3px rgba(37,99,235,0.25);
             }
             div.stButton > button[kind="primary"]:hover {
-                box-shadow: 0 6px 20px rgba(30, 58, 95, 0.4);
+                background: #1d4ed8;
+                border-color: #1d4ed8;
+                box-shadow: 0 2px 6px rgba(37,99,235,0.3);
             }
             div.stDownloadButton > button {
-                border-radius: 12px;
-                padding: 0.68rem 1rem;
-                font-weight: 600;
-                border: 1px solid #10243f;
-                background: #10243f;
-                color: white;
-                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+                border-radius: 6px;
+                font-weight: 500;
+                background: #1e293b;
+                color: #ffffff;
+                border-color: #1e293b;
+                box-shadow: none;
+            }
+            div.stDownloadButton > button:hover {
+                background: #0f172a;
+                border-color: #0f172a;
             }
 
-            /* ---- Containers ---- */
+            /* ── Containers ─────────────────────────────────────────────── */
             div[data-testid="stVerticalBlockBorderWrapper"] {
-                background: rgba(255, 255, 255, 0.9);
+                background: #ffffff;
                 border: 1px solid #e2e8f0;
-                border-radius: 20px;
-                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             }
 
-            /* ---- Metrics ---- */
-            [data-testid="stMetricValue"] { font-size: 1.55rem; color: #0f172a; }
+            /* ── Metrics ────────────────────────────────────────────────── */
             [data-testid="stMetric"] {
-                background: white;
+                background: #ffffff;
                 border: 1px solid #e2e8f0;
-                border-radius: 16px;
+                border-radius: 8px;
                 padding: 0.85rem 1rem;
-                box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             }
-            [data-testid="stMetricLabel"] { color: #64748b; font-size: 0.85rem; font-weight: 600; }
+            [data-testid="stMetricValue"] {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1e293b;
+            }
+            [data-testid="stMetricLabel"] {
+                color: #64748b;
+                font-size: 0.8rem;
+                font-weight: 500;
+            }
 
-            /* ---- Inputs / file uploader / expanders ---- */
+            /* ── Inputs / file uploader / expanders ─────────────────────── */
             [data-testid="stFileUploader"] section {
-                border-radius: 16px;
+                border-radius: 6px;
                 border: 1px dashed #cbd5e1;
                 background: #f8fafc;
             }
             [data-baseweb="input"] > div,
             [data-baseweb="textarea"] > div,
             [data-baseweb="select"] > div,
-            [data-baseweb="tag"] { border-radius: 12px !important; }
+            [data-baseweb="tag"] { border-radius: 6px !important; }
             [data-testid="stExpander"] details {
-                background: rgba(255,255,255,0.9);
+                background: #ffffff;
                 border: 1px solid #e2e8f0;
-                border-radius: 16px;
+                border-radius: 8px;
                 overflow: hidden;
+                box-shadow: none;
             }
 
-            /* ================================================
-               HERO SECTION
-               ================================================ */
+            /* ── HERO SECTION ───────────────────────────────────────────── */
             .hero-shell {
-                background: linear-gradient(135deg, #1a3356 0%, #0f2240 100%);
-                border-radius: 24px;
-                padding: 2rem 2.25rem;
-                margin-bottom: 1.1rem;
+                background: #1e293b;
+                border-radius: 8px;
+                padding: 2.5rem 3rem;
+                margin-bottom: 1.25rem;
                 display: grid;
                 grid-template-columns: 1fr auto;
-                gap: 2.5rem;
+                gap: 3rem;
                 align-items: center;
-                box-shadow:
-                    0 24px 60px rgba(15, 35, 64, 0.28),
-                    0 4px 12px rgba(15, 35, 64, 0.14);
-                position: relative;
-                overflow: hidden;
-            }
-            .hero-shell::before {
-                content: '';
-                position: absolute;
-                top: -90px; right: -90px;
-                width: 380px; height: 380px;
-                background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 65%);
-                pointer-events: none;
-            }
-            .hero-shell::after {
-                content: '';
-                position: absolute;
-                bottom: -70px; left: 32%;
-                width: 300px; height: 300px;
-                background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 65%);
-                pointer-events: none;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
             }
             .hero-badge {
                 display: inline-block;
-                padding: 0.28rem 0.8rem;
-                background: rgba(99,102,241,0.22);
-                border: 1px solid rgba(99,102,241,0.4);
-                border-radius: 999px;
-                color: #a5b4fc;
-                font-size: 0.67rem;
+                padding: 0.2rem 0.6rem;
+                background: rgba(37,99,235,0.18);
+                border: 1px solid rgba(37,99,235,0.32);
+                border-radius: 4px;
+                color: #93c5fd;
+                font-size: 0.64rem;
                 font-weight: 700;
                 letter-spacing: 0.1em;
                 text-transform: uppercase;
-                margin-bottom: 0.75rem;
+                margin-bottom: 0.6rem;
             }
             .hero-title {
                 color: #ffffff !important;
-                font-size: 3rem !important;
-                font-weight: 800 !important;
-                letter-spacing: -0.045em !important;
-                margin: 0 0 0.45rem !important;
-                line-height: 1 !important;
+                font-size: 2.4rem !important;
+                font-weight: 700 !important;
+                letter-spacing: -0.02em !important;
+                margin: 0 0 0.4rem !important;
+                line-height: 1.1 !important;
             }
             .hero-subtitle {
                 color: #94a3b8;
-                font-size: 1rem;
-                margin: 0 0 1.25rem;
-                line-height: 1.4;
+                font-size: 0.9rem;
+                margin: 0 0 1.1rem;
+                line-height: 1.5;
             }
             .hero-chip {
                 display: inline-block;
-                padding: 0.28rem 0.72rem;
-                background: rgba(255,255,255,0.09);
-                border: 1px solid rgba(255,255,255,0.15);
-                border-radius: 999px;
-                color: #cbd5e1;
-                font-size: 0.76rem;
-                font-weight: 600;
-                margin-right: 0.4rem;
-                margin-bottom: 0.3rem;
+                padding: 0.2rem 0.6rem;
+                background: rgba(255,255,255,0.07);
+                border: 1px solid rgba(255,255,255,0.11);
+                border-radius: 4px;
+                color: #94a3b8;
+                font-size: 0.72rem;
+                font-weight: 500;
+                margin-right: 0.35rem;
+                margin-bottom: 0.25rem;
             }
             .hero-stats {
                 display: grid;
-                grid-template-columns: repeat(2, 158px);
-                gap: 0.7rem;
+                grid-template-columns: repeat(2, 148px);
+                gap: 0.6rem;
             }
             .hero-stat-card {
-                background: rgba(255,255,255,0.08);
-                border: 1px solid rgba(255,255,255,0.12);
-                border-radius: 16px;
-                padding: 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.09);
+                border-radius: 6px;
+                padding: 0.8rem 0.9rem;
             }
-            .hero-stat-icon {
-                font-size: 1.15rem;
-                margin-bottom: 0.32rem;
-                display: block;
-            }
+            .hero-stat-icon { font-size: 0.95rem; margin-bottom: 0.2rem; display: block; }
             .hero-stat-label {
                 color: #64748b;
-                font-size: 0.67rem;
-                font-weight: 700;
+                font-size: 0.62rem;
+                font-weight: 600;
                 text-transform: uppercase;
                 letter-spacing: 0.08em;
-                margin-bottom: 0.22rem;
+                margin-bottom: 0.15rem;
             }
             .hero-stat-value {
-                color: #f1f5f9;
-                font-size: 0.9rem;
-                font-weight: 700;
+                color: #e2e8f0;
+                font-size: 0.82rem;
+                font-weight: 600;
                 word-break: break-word;
             }
 
-            /* ================================================
-               FEATURE CARDS
-               ================================================ */
+            /* ── FEATURE CARDS GRID ─────────────────────────────────────── */
+            .feat-grid {
+                display: grid;
+                gap: 0.75rem;
+                margin-bottom: 1.1rem;
+                align-items: stretch;
+            }
             .feat-card {
-                background: white;
-                border-radius: 20px;
+                background: #ffffff;
                 border: 1px solid #e2e8f0;
-                border-top: 3px solid var(--feat-accent, #6366f1);
-                padding: 1.4rem;
-                box-shadow: 0 4px 20px rgba(15,23,42,0.05);
-                transition: box-shadow 0.2s ease, transform 0.15s ease;
-                margin-bottom: 0.75rem;
+                border-top: 2px solid var(--feat-accent, #2563eb);
+                border-radius: 6px;
+                padding: 1.2rem 1.25rem;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                transition: box-shadow 0.15s ease, border-top-color 0.15s ease;
             }
             .feat-card:hover {
-                box-shadow: 0 10px 32px rgba(15,23,42,0.1);
-                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             }
             .feat-icon {
-                font-size: 1.65rem;
-                margin-bottom: 0.6rem;
+                font-size: 1.4rem;
+                margin-bottom: 0.55rem;
                 display: block;
             }
             .feat-title {
-                font-size: 1rem;
-                font-weight: 700;
-                color: #0f172a;
-                margin: 0 0 0.4rem;
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: #1e293b;
+                margin: 0 0 0.35rem;
             }
             .feat-desc {
-                font-size: 0.88rem;
+                font-size: 0.82rem;
                 color: #475569;
                 line-height: 1.55;
-                margin: 0 0 0.8rem;
+                margin: 0 0 auto;
+                padding-bottom: 0.75rem;
             }
             .feat-io {
-                font-size: 0.8rem;
+                font-size: 0.76rem;
                 color: #94a3b8;
                 line-height: 1.5;
+                border-top: 1px solid #f1f5f9;
+                padding-top: 0.65rem;
+                margin-top: 0.1rem;
             }
             .feat-io strong { color: #64748b; }
 
-            /* ================================================
-               ACTION STRIP & WORKSPACE SECTION
-               ================================================ */
+            /* ── ACTION STRIP & WORKSPACE SECTION ───────────────────────── */
             .action-strip {
                 display: grid;
                 grid-template-columns: 1fr 1fr auto;
-                gap: 1rem;
+                gap: 0.75rem;
                 align-items: center;
                 margin-bottom: 1rem;
             }
-            .action-meta {
-                color: #64748b;
-                font-size: 0.9rem;
-                text-align: right;
-            }
+            .action-meta { color: #64748b; font-size: 0.85rem; text-align: right; }
             .ws-section-title {
-                font-size: 0.78rem;
+                font-size: 0.72rem;
                 font-weight: 700;
-                color: #64748b;
+                color: #94a3b8;
                 text-transform: uppercase;
-                letter-spacing: 0.07em;
-                margin-bottom: 0.65rem;
+                letter-spacing: 0.08em;
+                margin-bottom: 0.6rem;
             }
             .ws-pill {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.3rem;
-                padding: 0.28rem 0.65rem;
+                gap: 0.25rem;
+                padding: 0.22rem 0.6rem;
                 background: #f8fafc;
                 border: 1px solid #e2e8f0;
-                border-radius: 999px;
+                border-radius: 4px;
                 color: #475569;
-                font-size: 0.78rem;
-                font-weight: 600;
-                margin-right: 0.4rem;
-                margin-bottom: 0.35rem;
+                font-size: 0.74rem;
+                font-weight: 500;
+                margin-right: 0.35rem;
+                margin-bottom: 0.3rem;
             }
 
-            /* ================================================
-               MISC / LEGACY HELPERS
-               ================================================ */
-            .section-copy { color: #64748b; font-size: 0.94rem; margin-bottom: 0.35rem; }
-            .chip-row { margin-top: 0.35rem; margin-bottom: 0.2rem; }
+            /* ── MISC HELPERS ───────────────────────────────────────────── */
+            .section-copy { color: #64748b; font-size: 0.875rem; margin-bottom: 0.35rem; }
+            .chip-row { margin-top: 0.3rem; margin-bottom: 0.15rem; }
             .tag-chip {
                 display: inline-block;
-                margin-right: 0.42rem; margin-bottom: 0.42rem;
-                padding: 0.28rem 0.72rem;
-                border-radius: 999px;
-                background: #eef2f7; color: #334155;
-                font-size: 0.78rem; font-weight: 600;
-                border: 1px solid #dbe3ee;
+                margin-right: 0.35rem; margin-bottom: 0.35rem;
+                padding: 0.2rem 0.6rem;
+                border-radius: 4px;
+                background: #f1f5f9; color: #334155;
+                font-size: 0.74rem; font-weight: 500;
+                border: 1px solid #e2e8f0;
             }
-            .eyebrow { color: #64748b; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.15rem; }
+            .eyebrow { color: #64748b; font-size: 0.74rem; font-weight: 600; margin-bottom: 0.15rem; }
             .soft-note {
-                background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;
-                padding: 0.95rem 1rem; margin-bottom: 0.8rem;
-                box-shadow: 0 6px 18px rgba(15,23,42,0.04);
+                background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;
+                padding: 0.9rem 1rem; margin-bottom: 0.75rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             }
-            .soft-note h4 { margin: 0 0 0.25rem; color: #0f172a; font-size: 0.98rem; }
-            .soft-note p, .soft-note li { color: #64748b; font-size: 0.89rem; line-height: 1.4; }
-            .soft-note ul { margin: 0.35rem 0 0; padding-left: 1.1rem; }
-            .microcopy { color: #64748b; font-size: 0.88rem; }
+            .soft-note h4 { margin: 0 0 0.2rem; color: #1e293b; font-size: 0.9rem; font-weight: 600; }
+            .soft-note p, .soft-note li { color: #64748b; font-size: 0.85rem; line-height: 1.45; }
+            .soft-note ul { margin: 0.3rem 0 0; padding-left: 1rem; }
+            .microcopy { color: #64748b; font-size: 0.84rem; }
             .answer-proof {
                 background: #f8fafc; border: 1px solid #e2e8f0;
-                border-left: 3px solid #304766;
-                padding: 0.8rem 0.95rem; border-radius: 12px;
-                color: #334155; font-size: 0.92rem;
+                border-left: 3px solid #2563eb;
+                padding: 0.75rem 0.9rem; border-radius: 6px;
+                color: #334155; font-size: 0.88rem;
             }
-            .module-tile { height: 100%; display: flex; flex-direction: column; gap: 0.55rem; }
+            .module-tile { height: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
             .module-tile-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-            .module-tile-title { color: #0f172a; font-size: 1rem; font-weight: 700; }
+            .module-tile-title { color: #1e293b; font-size: 0.9rem; font-weight: 600; }
             .module-pill {
-                font-size: 0.72rem; padding: 0.22rem 0.5rem; border-radius: 999px;
-                background: #eff6ff; color: #36537a; border: 1px solid #d9e7fb; font-weight: 600;
+                font-size: 0.7rem; padding: 0.18rem 0.45rem; border-radius: 4px;
+                background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; font-weight: 500;
             }
-            .module-copy { color: #64748b; font-size: 0.9rem; line-height: 1.5; }
-            .module-meta { color: #475569; font-size: 0.82rem; line-height: 1.45; }
-            .workspace-actions-note { color: #64748b; font-size: 0.82rem; margin-top: 0.15rem; }
+            .module-copy { color: #64748b; font-size: 0.875rem; line-height: 1.5; }
+            .module-meta { color: #475569; font-size: 0.8rem; line-height: 1.45; }
+            .workspace-actions-note { color: #64748b; font-size: 0.8rem; margin-top: 0.15rem; }
 
-            /* ================================================
-               RESPONSIVE
-               ================================================ */
+            /* ── RESPONSIVE ─────────────────────────────────────────────── */
             @media (max-width: 960px) {
-                .hero-shell { grid-template-columns: 1fr; }
+                .hero-shell { grid-template-columns: 1fr; padding: 2rem; gap: 2rem; }
                 .hero-stats { grid-template-columns: repeat(4, 1fr); }
-                .hero-title { font-size: 2.2rem !important; }
+                .hero-title { font-size: 1.9rem !important; }
+                .feat-grid { grid-template-columns: repeat(2, 1fr) !important; }
                 .action-strip { grid-template-columns: 1fr; }
                 .action-meta { text-align: left; }
             }
             @media (max-width: 640px) {
                 .hero-stats { grid-template-columns: repeat(2, 1fr); }
+                .feat-grid { grid-template-columns: 1fr !important; }
             }
         </style>
         """,
@@ -782,31 +782,29 @@ def _render_selected_files_preview(uploaded_files):
 
 
 def _render_feature_cards():
-    """Render product feature cards on the dashboard — 3 on row 1, 2 on row 2."""
-    def _card_html(card):
-        accent = card.get("accent", "#6366f1")
-        icon = card.get("icon", "✦")
-        return f"""
-        <div class="feat-card" style="--feat-accent: {accent};">
-            <span class="feat-icon">{icon}</span>
-            <div class="feat-title">{card['title']}</div>
-            <div class="feat-desc">{card['description']}</div>
-            <div class="feat-io">
-                <strong>Input</strong> &middot; {card['input']}<br/>
-                <strong>Output</strong> &middot; {card['output']}
-            </div>
-        </div>
-        """
+    """Render all feature cards in a single CSS grid for guaranteed equal heights.
+    4 cards → 4-column single row. 5 cards → 3+2 layout."""
+    n = len(FEATURE_CARDS)
+    cols = 4 if n <= 4 else 3
 
-    row1_cols = st.columns(3, gap="small")
-    for col, card in zip(row1_cols, FEATURE_CARDS[:3]):
-        with col:
-            st.markdown(_card_html(card), unsafe_allow_html=True)
+    cards_html = "".join(
+        f"""<div class="feat-card" style="--feat-accent: {card.get('accent', '#2563eb')};">
+                <span class="feat-icon">{card.get('icon', '✦')}</span>
+                <div class="feat-title">{card['title']}</div>
+                <div class="feat-desc">{card['description']}</div>
+                <div class="feat-io">
+                    <strong>Input</strong> &middot; {card['input']}<br/>
+                    <strong>Output</strong> &middot; {card['output']}
+                </div>
+            </div>"""
+        for card in FEATURE_CARDS
+    )
 
-    row2_cols = st.columns(2, gap="small")
-    for col, card in zip(row2_cols, FEATURE_CARDS[3:]):
-        with col:
-            st.markdown(_card_html(card), unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="feat-grid" style="grid-template-columns: repeat({cols}, 1fr);">'
+        f'{cards_html}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def _render_dashboard():
