@@ -21,40 +21,38 @@ def _query_ollama_local(prompt, model=DEFAULT_OLLAMA_MODEL):
     return model_response
 
 
-def _query_google_cloud(prompt):
+def _query_cloud_fallback(prompt):
     import streamlit as st
 
     api_key = ""
-
-    # Try Streamlit secrets first (for Streamlit Cloud)
     try:
-        api_key = st.secrets["GOOGLE_API_KEY"]
+        api_key = st.secrets["GROQ_API_KEY"]
     except Exception:
         pass
-
-    # Fall back to environment variable (for local)
     if not api_key:
-        api_key = os.environ.get("GOOGLE_API_KEY", "")
-
+        api_key = os.environ.get("GROQ_API_KEY", "")
     if not api_key:
         raise RuntimeError(
-            "Ollama is not running and no GOOGLE_API_KEY is set. "
+            "Ollama is not running and no GROQ_API_KEY is set. "
             "Please run: ollama serve"
         )
 
-    print(f"[DEBUG] Using Google API key: {api_key[:10]}...")
-    print(f"[DEBUG] Prompt length: {len(prompt)}")
     response = requests.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}",
-        headers={"content-type": "application/json"},
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
         json={
-            "contents": [{"parts": [{"text": prompt}]}],
+            "model": "llama-3.1-8b-instant",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 1024,
         },
         timeout=60,
     )
     response.raise_for_status()
     data = response.json()
-    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    return data["choices"][0]["message"]["content"].strip()
 
 
 def query_ollama(prompt, model=DEFAULT_OLLAMA_MODEL):
@@ -66,7 +64,7 @@ def query_ollama(prompt, model=DEFAULT_OLLAMA_MODEL):
         pass
 
     try:
-        return _query_google_cloud(prompt)
+        return _query_cloud_fallback(prompt)
     except Exception as cloud_error:
         raise RuntimeError(
             f"Could not reach Ollama locally or the cloud API. Error: {cloud_error}"
