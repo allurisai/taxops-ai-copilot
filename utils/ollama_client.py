@@ -22,7 +22,11 @@ def _query_ollama_local(prompt, model=DEFAULT_OLLAMA_MODEL):
 
 
 def _query_google_cloud(prompt):
-    api_key = os.environ.get("GOOGLE_API_KEY", "")
+    try:
+        import streamlit as st
+        api_key = st.secrets.get("GOOGLE_API_KEY", os.environ.get("GOOGLE_API_KEY", ""))
+    except:
+        api_key = os.environ.get("GOOGLE_API_KEY", "")
     if not api_key:
         raise RuntimeError(
             "Ollama is not running and no GOOGLE_API_KEY is set. "
