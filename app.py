@@ -157,9 +157,20 @@ def _apply_page_style():
         """
         <style>
             /* ── Global font & base ─────────────────────────────────────── */
-            html, body, [class*="css"], [class*="st-"] {
+            /* Scope the font override to content areas only — NOT icon elements.
+               Applying it to [class*="st-"] globally breaks Streamlit's Material
+               Icons ligatures (e.g. the sidebar toggle shows raw icon name text). */
+            html, body, .main .block-container, [class*="css"] {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                             'Helvetica Neue', Arial, sans-serif !important;
+                             'Helvetica Neue', Arial, sans-serif;
+            }
+            /* Restore Material Icons font for Streamlit's icon/header buttons */
+            [data-testid="collapsedControl"],
+            [data-testid="collapsedControl"] button,
+            button[data-testid="baseButton-header"],
+            button[data-testid="baseButton-header"] span,
+            header button, header span {
+                font-family: 'Material Icons', 'Material Icons Outlined' !important;
             }
             .stApp { background: #f1f5f9; }
             .block-container {
