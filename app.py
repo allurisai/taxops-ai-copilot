@@ -1231,9 +1231,7 @@ def _render_internal_ai_brain_tab():
                     st.error(f"Could not build the workspace: {error}")
 
             if st.session_state.get("retrieval_mode") == "Keyword fallback":
-                st.warning(
-                    "Semantic embeddings are not currently available in the local cache, so retrieval is using a keyword fallback mode."
-                )
+                st.caption("🔍 Using keyword-based retrieval")
 
         if st.session_state.get("workspace_documents"):
             _render_loaded_document_cards()
