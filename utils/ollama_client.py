@@ -22,16 +22,26 @@ def _query_ollama_local(prompt, model=DEFAULT_OLLAMA_MODEL):
 
 
 def _query_google_cloud(prompt):
+    import streamlit as st
+
+    api_key = ""
+
+    # Try Streamlit secrets first (for Streamlit Cloud)
     try:
-        import streamlit as st
-        api_key = st.secrets.get("GOOGLE_API_KEY", os.environ.get("GOOGLE_API_KEY", ""))
-    except:
+        api_key = st.secrets["GOOGLE_API_KEY"]
+    except Exception:
+        pass
+
+    # Fall back to environment variable (for local)
+    if not api_key:
         api_key = os.environ.get("GOOGLE_API_KEY", "")
+
     if not api_key:
         raise RuntimeError(
             "Ollama is not running and no GOOGLE_API_KEY is set. "
             "Please run: ollama serve"
         )
+
     response = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}",
         headers={"content-type": "application/json"},
