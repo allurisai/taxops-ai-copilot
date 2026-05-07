@@ -42,6 +42,8 @@ def _query_google_cloud(prompt):
             "Please run: ollama serve"
         )
 
+    print(f"[DEBUG] Using Google API key: {api_key[:10]}...")
+    print(f"[DEBUG] Prompt length: {len(prompt)}")
     response = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}",
         headers={"content-type": "application/json"},

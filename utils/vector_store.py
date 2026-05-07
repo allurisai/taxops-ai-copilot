@@ -4,7 +4,11 @@ import re
 from typing import Optional
 
 import faiss
-from sentence_transformers import SentenceTransformer
+try:
+    from sentence_transformers import SentenceTransformer
+    EMBEDDINGS_AVAILABLE = True
+except ImportError:
+    EMBEDDINGS_AVAILABLE = False
 
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
@@ -56,6 +60,8 @@ class LocalVectorStore:
 @lru_cache(maxsize=1)
 def get_embedding_model():
     """Load the sentence-transformer model once and reuse it."""
+    if not EMBEDDINGS_AVAILABLE:
+        return None
     return SentenceTransformer(EMBEDDING_MODEL_NAME, local_files_only=True)
 
 
@@ -116,6 +122,14 @@ def build_vector_store(documents):
     """Create a FAISS vector store from chunked documents, with keyword fallback if needed."""
     if not documents:
         raise ValueError("No documents were available to index.")
+
+    if not EMBEDDINGS_AVAILABLE:
+        return LocalVectorStore(
+            index=None,
+            chunks=documents,
+            use_embeddings=False,
+            retrieval_mode="Keyword fallback",
+        )
 
     try:
         texts = [document["search_text"] for document in documents]
