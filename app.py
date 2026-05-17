@@ -82,6 +82,14 @@ FEATURE_CARDS = [
         "icon": "⚡",
         "accent": "#ef4444",
     },
+    {
+        "title": "Client Dashboard",
+        "description": "Track income, expenses, savings, and financial health for any client with charts and insights.",
+        "input": "Transaction CSV (type, amount, category, date)",
+        "output": "Metrics, charts, insights, and export",
+        "icon": "📈",
+        "accent": "#0891b2",
+    },
 ]
 INTERNAL_BRAIN_EXAMPLES = [
     "What is the client onboarding process?",
@@ -1781,19 +1789,305 @@ def _render_automations_tab():
                 st.caption(timeline)
 
 
+def _render_client_dashboard_tab():
+    """Client Finance Dashboard — adapted from Personal Finance Dashboard.
+
+    Uses session state instead of SQLite so it works on Streamlit Cloud with
+    no extra setup. CSV format is identical to the original app:
+    columns: type, amount, category, date  (note is optional).
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from datetime import date as _date
+
+    DEFAULT_CATEGORIES = [
+        "Food", "Rent", "Transport", "Entertainment",
+        "Utilities", "Shopping", "Health", "Salary", "Other",
+    ]
+
+    # ── Built-in sample data (pre-loads so the tab is never empty) ────────
+    def _sample_df():
+        return pd.DataFrame([
+            {"type": "Income",  "amount": 8500.0, "category": "Salary",        "date": "2026-01-01", "note": "January"},
+            {"type": "Expense", "amount": 1200.0, "category": "Rent",          "date": "2026-01-05", "note": ""},
+            {"type": "Expense", "amount": 350.0,  "category": "Food",          "date": "2026-01-10", "note": ""},
+            {"type": "Expense", "amount": 180.0,  "category": "Transport",     "date": "2026-01-15", "note": ""},
+            {"type": "Expense", "amount": 120.0,  "category": "Utilities",     "date": "2026-01-20", "note": ""},
+            {"type": "Income",  "amount": 8500.0, "category": "Salary",        "date": "2026-02-01", "note": "February"},
+            {"type": "Expense", "amount": 1200.0, "category": "Rent",          "date": "2026-02-05", "note": ""},
+            {"type": "Expense", "amount": 420.0,  "category": "Food",          "date": "2026-02-12", "note": ""},
+            {"type": "Expense", "amount": 200.0,  "category": "Entertainment", "date": "2026-02-18", "note": ""},
+            {"type": "Expense", "amount": 150.0,  "category": "Health",        "date": "2026-02-22", "note": ""},
+            {"type": "Income",  "amount": 8500.0, "category": "Salary",        "date": "2026-03-01", "note": "March"},
+            {"type": "Expense", "amount": 1200.0, "category": "Rent",          "date": "2026-03-05", "note": ""},
+            {"type": "Expense", "amount": 380.0,  "category": "Food",          "date": "2026-03-10", "note": ""},
+            {"type": "Expense", "amount": 250.0,  "category": "Shopping",      "date": "2026-03-16", "note": ""},
+            {"type": "Expense", "amount": 90.0,   "category": "Utilities",     "date": "2026-03-20", "note": ""},
+        ])
+
+    # ── Session state init ────────────────────────────────────────────────
+    st.session_state.setdefault("cd_df", _sample_df())
+    st.session_state.setdefault("cd_budget", 5000.0)
+    st.session_state.setdefault("cd_last_file", "")
+
+    st.subheader("Client Dashboard")
+    st.markdown(
+        "<p class='section-copy'>Track income, expenses, and financial health. "
+        "Upload a CSV to replace data. Required columns: type, amount, category, date.</p>",
+        unsafe_allow_html=True,
+    )
+
+    # ── Controls row ──────────────────────────────────────────────────────
+    ctrl_col, upload_col, budget_col = st.columns([1.4, 2, 1.2], gap="large")
+
+    with ctrl_col:
+        with st.container(border=True):
+            _render_step_header("Add Entry", "")
+            with st.form("cd_entry_form", clear_on_submit=True):
+                type_ = st.selectbox("Type", ["Income", "Expense"])
+                amount = st.number_input("Amount ($)", min_value=0.0, step=100.0)
+                category = st.selectbox("Category", DEFAULT_CATEGORIES)
+                date_in = st.date_input("Date", value=_date.today())
+                note = st.text_input("Note (optional)")
+                if st.form_submit_button("Add Entry", type="primary", use_container_width=True):
+                    if amount <= 0:
+                        st.error("Enter a valid amount")
+                    else:
+                        new_row = pd.DataFrame([{
+                            "type": type_, "amount": float(amount),
+                            "category": category, "date": date_in.isoformat(), "note": note,
+                        }])
+                        st.session_state["cd_df"] = pd.concat(
+                            [st.session_state["cd_df"], new_row], ignore_index=True
+                        )
+                        st.success("Entry added")
+
+    with upload_col:
+        with st.container(border=True):
+            _render_step_header("Import / Export", "")
+            uploaded = st.file_uploader(
+                "Upload transactions CSV (replaces all data)",
+                type=["csv"],
+                key="cd_uploader",
+            )
+            if uploaded is not None:
+                file_key = f"{uploaded.name}_{uploaded.size}"
+                if file_key != st.session_state["cd_last_file"]:
+                    try:
+                        imp_df = pd.read_csv(uploaded)
+                        imp_df.columns = imp_df.columns.str.lower()
+                        required = {"type", "amount", "category", "date"}
+                        if not required.issubset(set(imp_df.columns)):
+                            st.error(f"CSV must have columns: {', '.join(sorted(required))}")
+                        else:
+                            if "note" not in imp_df.columns:
+                                imp_df["note"] = ""
+                            imp_df = imp_df[["type", "amount", "category", "date", "note"]].copy()
+                            imp_df["type"] = imp_df["type"].str.capitalize()
+                            imp_df["amount"] = pd.to_numeric(imp_df["amount"], errors="coerce").fillna(0)
+                            # Replace — never append
+                            st.session_state["cd_df"] = imp_df.reset_index(drop=True)
+                            st.session_state["cd_last_file"] = file_key
+                            st.success(f"Replaced all data with {len(imp_df)} rows from '{uploaded.name}'")
+                            st.rerun()
+                    except Exception as err:
+                        st.error(f"Import failed: {err}")
+                else:
+                    st.caption(f"'{uploaded.name}' already loaded. Upload a different file to replace.")
+
+            if not st.session_state["cd_df"].empty:
+                st.download_button(
+                    "Download CSV",
+                    data=st.session_state["cd_df"].to_csv(index=False).encode("utf-8"),
+                    file_name="client_transactions.csv",
+                    mime="text/csv",
+                )
+
+    with budget_col:
+        with st.container(border=True):
+            _render_step_header("Budget", "")
+            new_budget = st.number_input(
+                "Monthly budget ($)",
+                value=float(st.session_state["cd_budget"]),
+                step=500.0,
+            )
+            if st.button("Save Budget", use_container_width=True):
+                st.session_state["cd_budget"] = new_budget
+                st.success("Saved")
+            if st.button("Reset Sample Data", use_container_width=True):
+                st.session_state["cd_df"] = _sample_df()
+                st.session_state["cd_last_file"] = ""
+                st.rerun()
+
+    # ── Compute summary ───────────────────────────────────────────────────
+    df = st.session_state["cd_df"].copy()
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df["amount"] = pd.to_numeric(df["amount"], errors="coerce").fillna(0)
+
+    income   = df[df["type"] == "Income"]["amount"].sum()
+    expenses = df[df["type"] == "Expense"]["amount"].sum()
+    savings  = income - expenses
+    budget   = float(st.session_state["cd_budget"])
+    score    = int(min(max((income - expenses) / income * 100 if income > 0 else 0, 0), 100))
+
+    # ── Key metrics ───────────────────────────────────────────────────────
+    st.markdown("#### Key Metrics")
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Total Income",   f"${income:,.0f}")
+    m2.metric("Total Expenses", f"${expenses:,.0f}")
+    m3.metric("Savings",        f"${savings:,.0f}")
+    m4.metric("Health Score",   f"{score}/100")
+
+    # ── Charts ────────────────────────────────────────────────────────────
+    if df.empty:
+        st.info("No data — add entries or upload a CSV.")
+        return
+
+    st.markdown("#### Visualizations")
+    chart_col1, chart_col2 = st.columns(2)
+
+    exp_df = df[df["type"] == "Expense"].groupby("category")["amount"].sum()
+    exp_df = exp_df[exp_df > 0]
+
+    with chart_col1:
+        st.markdown("**Expenses by Category**")
+        if not exp_df.empty:
+            fig1, ax1 = plt.subplots(figsize=(5, 4))
+            wedges, _, autotexts = ax1.pie(
+                exp_df.values, autopct="%1.0f%%", pctdistance=0.82, startangle=140
+            )
+            ax1.legend(
+                wedges, exp_df.index,
+                title="Categories", loc="center left",
+                bbox_to_anchor=(1, 0, 0.5, 1), fontsize=8,
+            )
+            ax1.set_aspect("equal")
+            fig1.tight_layout()
+            st.pyplot(fig1)
+            plt.close(fig1)
+        else:
+            st.info("No expense data")
+
+    with chart_col2:
+        st.markdown("**Savings Over Time**")
+        df_sorted = df.sort_values("date").copy()
+        df_sorted["net"] = df_sorted.apply(
+            lambda r: r["amount"] if r["type"] == "Income" else -r["amount"], axis=1
+        )
+        trend = df_sorted.groupby("date")["net"].sum().cumsum()
+        fig2, ax2 = plt.subplots(figsize=(5, 4))
+        x_pos = list(range(len(trend)))
+        ax2.plot(x_pos, trend.values, marker="o", markersize=4, linewidth=1.5, color="#2563eb")
+        ax2.fill_between(x_pos, trend.values, alpha=0.1, color="#2563eb")
+        labels = [d.strftime("%b %d") for d in trend.index]
+        step = max(1, len(x_pos) // 8)
+        ax2.set_xticks(x_pos[::step])
+        ax2.set_xticklabels(labels[::step], rotation=45, ha="right", fontsize=8)
+        ax2.set_ylabel("Cumulative Savings ($)")
+        ax2.yaxis.get_major_formatter().set_scientific(False)
+        fig2.tight_layout()
+        st.pyplot(fig2)
+        plt.close(fig2)
+
+    st.markdown("#### More Insights")
+    colA, colB = st.columns(2)
+
+    with colA:
+        st.markdown("**Expenses by Month**")
+        df["month"] = df["date"].dt.to_period("M")
+        monthly = df[df["type"] == "Expense"].groupby("month")["amount"].sum()
+        if not monthly.empty:
+            fig3, ax3 = plt.subplots(figsize=(5, 3.5))
+            bars = ax3.bar(
+                [str(m) for m in monthly.index], monthly.values,
+                color="#2563eb", edgecolor="white",
+            )
+            ax3.set_ylabel("Expenses ($)")
+            ax3.set_ylim(bottom=0)
+            for bar in bars:
+                h = bar.get_height()
+                ax3.annotate(
+                    f"${h:,.0f}",
+                    xy=(bar.get_x() + bar.get_width() / 2, h),
+                    xytext=(0, 3), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=8,
+                )
+            plt.xticks(rotation=45, ha="right")
+            fig3.tight_layout()
+            st.pyplot(fig3)
+            plt.close(fig3)
+        else:
+            st.info("No expense data by month")
+
+    with colB:
+        st.markdown("**Spending by Weekday**")
+        df["weekday"] = df["date"].dt.day_name()
+        heat = df[df["type"] == "Expense"].groupby("weekday")["amount"].sum().reindex(
+            ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        ).fillna(0)
+        fig4, ax4 = plt.subplots(figsize=(6, 2))
+        im = ax4.imshow(heat.values.reshape(1, -1), aspect="auto", cmap="YlOrRd")
+        ax4.set_xticks(range(7))
+        ax4.set_xticklabels(heat.index, rotation=30, ha="right", fontsize=8)
+        ax4.set_yticks([])
+        for j, val in enumerate(heat.values):
+            ax4.text(
+                j, 0, f"${val:,.0f}", ha="center", va="center",
+                fontsize=7, color="black" if val < heat.max() * 0.6 else "white",
+            )
+        fig4.colorbar(im, ax=ax4, orientation="vertical", pad=0.02).set_label("Amount ($)", fontsize=8)
+        fig4.tight_layout()
+        st.pyplot(fig4)
+        plt.close(fig4)
+
+    # ── Insights ──────────────────────────────────────────────────────────
+    st.markdown("#### Insights")
+    insights = []
+    if expenses > 0:
+        cat_totals = df[df["type"] == "Expense"].groupby("category")["amount"].sum()
+        top_cat = cat_totals.idxmax()
+        top_pct = cat_totals.max() / expenses
+        if top_pct > 0.4:
+            insights.append(f"⚠️ {top_pct:.0%} of expenses are in **{top_cat}**. Consider reviewing.")
+        else:
+            insights.append(f"✅ Highest expense category: **{top_cat}** ({top_pct:.0%} of expenses).")
+    if budget > 0:
+        this_month = pd.Timestamp.today().replace(day=1).normalize()
+        monthly_exp = df[(df["type"] == "Expense") & (df["date"] >= this_month)]["amount"].sum()
+        if monthly_exp > budget:
+            insights.append(f"🔴 Monthly budget of ${budget:,.0f} exceeded — spent ${monthly_exp:,.0f} this month.")
+        else:
+            pct = monthly_exp / budget
+            insights.append(f"🟢 Used {pct:.0%} of monthly budget (${monthly_exp:,.0f} of ${budget:,.0f}).")
+    if income > 0 and savings / income < 0.05:
+        insights.append("💡 Savings rate is very low. Consider reducing non-essential spending.")
+    if not insights:
+        insights.append("No major issues detected. Keep tracking!")
+    for ins in insights:
+        st.markdown(f"- {ins}")
+
+    # ── Transaction table ─────────────────────────────────────────────────
+    st.markdown("#### Transactions")
+    display = df[["date", "type", "amount", "category", "note"]].copy()
+    display["date"] = display["date"].dt.strftime("%Y-%m-%d")
+    st.dataframe(display.sort_values("date", ascending=False), use_container_width=True, hide_index=True)
+
+
 def main():
     _initialize_session_state()
     _apply_page_style()
     _render_sidebar()
     _render_dashboard()
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
         [
             "Internal AI Brain",
             "Bookkeeping Copilot",
             "Client Communication",
             "Strategy Content Studio",
             "Automations",
+            "Client Dashboard",
         ]
     )
 
@@ -1811,6 +2105,9 @@ def main():
 
     with tab5:
         _render_automations_tab()
+
+    with tab6:
+        _render_client_dashboard_tab()
 
 
 if __name__ == "__main__":
