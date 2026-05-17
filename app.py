@@ -126,6 +126,13 @@ st.set_page_config(
 def _initialize_session_state():
     """Create the shared state used by the full product experience."""
     defaults = {
+        # ── Auth ──────────────────────────────────────────────────────────
+        "authenticated": False,
+        "user_name": "",
+        "user_email": "",
+        "login_view": "signin",
+        "login_error": False,
+        # ── App ───────────────────────────────────────────────────────────
         "workspace_name": "No workspace loaded",
         "workspace_kind": None,
         "workspace_signature": None,
@@ -965,6 +972,19 @@ def _render_dashboard():
 def _render_sidebar():
     """Render a compact sidebar."""
     with st.sidebar:
+        # ── User info + sign out ──────────────────────────────────────────
+        user_name = st.session_state.get("user_name", "")
+        if user_name:
+            st.markdown(f"👤 **{user_name}**")
+            st.caption(st.session_state.get("user_email", ""))
+            if st.button("Sign Out", use_container_width=True):
+                st.session_state["authenticated"] = False
+                st.session_state["user_name"] = ""
+                st.session_state["user_email"] = ""
+                st.session_state["login_error"] = False
+                st.rerun()
+            st.markdown("---")
+
         st.markdown("### Workspace")
 
         if st.session_state.get("workspace_documents"):
@@ -1789,6 +1809,281 @@ def _render_automations_tab():
                 st.caption(timeline)
 
 
+_LOGIN_CSS = """
+<style>
+/* ── Hide all Streamlit chrome on login page ──────────────────────────── */
+#MainMenu, footer, header { visibility: hidden !important; }
+[data-testid="stToolbar"] { display: none !important; }
+[data-testid="stDecoration"] { display: none !important; }
+[data-testid="stStatusWidget"] { display: none !important; }
+[data-testid="collapsedControl"] { display: none !important; }
+section[data-testid="stSidebar"] { display: none !important; }
+
+/* ── Full screen dark background ──────────────────────────────────────── */
+.stApp {
+    background: #0A0F1E !important;
+    background-image:
+        radial-gradient(ellipse at 20% 60%, rgba(79,142,247,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 20%, rgba(123,92,247,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(79,142,247,0.04) 0%, transparent 50%);
+    min-height: 100vh;
+}
+
+.block-container {
+    padding-top: 4rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 100% !important;
+}
+
+/* ── Logo area ─────────────────────────────────────────────────────────── */
+.ytc-logo { text-align: center; margin-bottom: 2.25rem; }
+.ytc-logo-text {
+    font-size: 3.2rem; font-weight: 900; color: #4F8EF7;
+    letter-spacing: -0.03em; line-height: 1;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    text-shadow: 0 0 40px rgba(79,142,247,0.4);
+}
+.ytc-company {
+    font-size: 1.05rem; color: #ffffff; font-weight: 600;
+    margin-top: 0.4rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.ytc-subtitle {
+    font-size: 0.72rem; color: #4a5568; font-weight: 500;
+    margin-top: 0.2rem; letter-spacing: 0.12em; text-transform: uppercase;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Section headings inside login ─────────────────────────────────────── */
+.login-section-title {
+    text-align: center; color: #94a3b8; font-size: 0.8rem;
+    font-weight: 500; margin-bottom: 1.25rem; letter-spacing: 0.02em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────── */
+.login-divider {
+    display: flex; align-items: center; gap: 0.75rem; margin: 1.1rem 0;
+}
+.login-divider::before, .login-divider::after {
+    content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07);
+}
+.login-divider span {
+    color: #4a5568; font-size: 0.74rem; font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Error / info messages ────────────────────────────────────────────── */
+.login-error {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 8px; padding: 0.6rem 0.85rem; color: #f87171;
+    font-size: 0.84rem; margin: 0.5rem 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.login-forgot {
+    text-align: right; margin-top: 0.2rem; margin-bottom: 0.75rem;
+}
+.login-forgot a {
+    color: #4a5568; font-size: 0.77rem; text-decoration: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.login-forgot a:hover { color: #4F8EF7; }
+.login-bottom {
+    text-align: center; color: #4a5568; font-size: 0.82rem; margin-top: 1.1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Override ALL inputs on login page ────────────────────────────────── */
+div[data-testid="stTextInput"] input {
+    background: #111827 !important;
+    border: 1px solid rgba(255,255,255,0.09) !important;
+    border-radius: 10px !important;
+    color: #f1f5f9 !important;
+    font-size: 14.5px !important;
+    padding: 0.7rem 0.9rem !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+div[data-testid="stTextInput"] input::placeholder { color: rgba(255,255,255,0.2) !important; }
+div[data-testid="stTextInput"] input:focus {
+    border-color: #4F8EF7 !important;
+    box-shadow: 0 0 0 3px rgba(79,142,247,0.15) !important;
+    outline: none !important;
+}
+div[data-testid="stTextInput"] > div { border: none !important; background: transparent !important; }
+div[data-testid="stTextInput"] label { color: transparent !important; height: 0 !important; margin: 0 !important; }
+
+/* ── Checkbox (show password) ─────────────────────────────────────────── */
+div[data-testid="stCheckbox"] { margin-top: -0.4rem; margin-bottom: 0.5rem; }
+div[data-testid="stCheckbox"] label p { color: #4a5568 !important; font-size: 0.78rem !important; }
+
+/* ── Primary button (Sign In / Create Account) ─────────────────────────── */
+div.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #4F8EF7 0%, #7B5CF7 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    height: 48px !important;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 20px rgba(79,142,247,0.3) !important;
+    transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+div.stButton > button[kind="primary"]:hover {
+    opacity: 0.92 !important;
+    box-shadow: 0 6px 28px rgba(79,142,247,0.45) !important;
+}
+
+/* ── Secondary buttons (social login, links) ───────────────────────────── */
+div.stButton > button[kind="secondary"] {
+    background: transparent !important;
+    border: none !important;
+    color: #4F8EF7 !important;
+    font-size: 0.83rem !important;
+    padding: 0.1rem 0 !important;
+    height: auto !important;
+    font-weight: 500 !important;
+}
+
+/* ── Social login buttons (Google & Apple) ─────────────────────────────── */
+.social-btn div.stButton > button {
+    background: #161d30 !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 10px !important;
+    color: #e2e8f0 !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    height: 46px !important;
+    letter-spacing: 0.01em;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.social-btn div.stButton > button:hover {
+    background: #1d2640 !important;
+    border-color: rgba(255,255,255,0.18) !important;
+}
+
+/* ── User badge (fixed top-right when logged in) ───────────────────────── */
+.user-top-badge {
+    position: fixed; top: 0.7rem; right: 1rem; z-index: 9999;
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.22);
+    border-radius: 20px; padding: 0.25rem 0.75rem;
+    color: #4F8EF7; font-size: 0.78rem; font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    pointer-events: none;
+}
+</style>
+"""
+
+
+def _render_login_page():
+    """Full-screen corporate login page rendered before the main app."""
+    st.markdown(_LOGIN_CSS, unsafe_allow_html=True)
+
+    # Credentials
+    DEMO_EMAIL    = "demo@yourtaxcoach.com"
+    DEMO_PASSWORD = "TaxCoach2025"
+
+    view = st.session_state.get("login_view", "signin")
+
+    # Center the card using columns
+    _, center, _ = st.columns([1, 1.55, 1])
+
+    with center:
+        # ── Logo ─────────────────────────────────────────────────────────
+        st.markdown("""
+        <div class="ytc-logo">
+            <div class="ytc-logo-text">YTC</div>
+            <div class="ytc-company">Your Tax Coach</div>
+            <div class="ytc-subtitle">AI Command Center</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ─────────────────────────────────────────────────────────────────
+        if view == "signin":
+            st.markdown('<p class="login-section-title">Sign in to your account</p>', unsafe_allow_html=True)
+
+            # Social login buttons
+            g_col, a_col = st.columns(2, gap="small")
+            with g_col:
+                st.markdown('<div class="social-btn">', unsafe_allow_html=True)
+                if st.button("🔵  Continue with Google", use_container_width=True, key="google_btn"):
+                    st.toast("Coming soon — Google OAuth is planned!", icon="ℹ️")
+                st.markdown('</div>', unsafe_allow_html=True)
+            with a_col:
+                st.markdown('<div class="social-btn">', unsafe_allow_html=True)
+                if st.button("🍎  Continue with Apple", use_container_width=True, key="apple_btn"):
+                    st.toast("Coming soon — Apple OAuth is planned!", icon="ℹ️")
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown('<div class="login-divider"><span>or</span></div>', unsafe_allow_html=True)
+
+            # Email field
+            email = st.text_input("email", placeholder="Work email address",
+                                  key="login_email", label_visibility="collapsed")
+
+            # Password field with show/hide
+            show_pw = st.checkbox("👁  Show password", key="login_show_pw")
+            pw_type = "default" if show_pw else "password"
+            password = st.text_input("password", placeholder="Password",
+                                     type=pw_type, key=f"login_pw_{show_pw}",
+                                     label_visibility="collapsed")
+
+            # Forgot password
+            st.markdown('<div class="login-forgot"><a href="#">Forgot password?</a></div>',
+                        unsafe_allow_html=True)
+
+            # Error message
+            if st.session_state.get("login_error"):
+                st.markdown(
+                    '<div class="login-error">❌ Invalid email or password. Please try again.</div>',
+                    unsafe_allow_html=True,
+                )
+
+            # Sign In button
+            if st.button("Sign In", type="primary", use_container_width=True, key="signin_btn"):
+                if email.strip() == DEMO_EMAIL and password == DEMO_PASSWORD:
+                    st.session_state["authenticated"] = True
+                    st.session_state["user_name"]     = "Demo User"
+                    st.session_state["user_email"]    = email.strip()
+                    st.session_state["login_error"]   = False
+                    st.rerun()
+                else:
+                    st.session_state["login_error"] = True
+                    st.rerun()
+
+            # Switch to sign up
+            st.markdown('<div class="login-bottom">Don\'t have an account?</div>',
+                        unsafe_allow_html=True)
+            if st.button("Sign up →", key="go_signup", use_container_width=False):
+                st.session_state["login_view"]  = "signup"
+                st.session_state["login_error"] = False
+                st.rerun()
+
+        # ─────────────────────────────────────────────────────────────────
+        else:  # signup view
+            st.markdown('<p class="login-section-title">Create your account</p>', unsafe_allow_html=True)
+
+            st.text_input("fn", placeholder="Full name",
+                          key="signup_name", label_visibility="collapsed")
+            st.text_input("em", placeholder="Work email address",
+                          key="signup_email", label_visibility="collapsed")
+            st.text_input("pw", placeholder="Password",
+                          type="password", key="signup_pw", label_visibility="collapsed")
+            st.text_input("co", placeholder="Company name",
+                          key="signup_company", label_visibility="collapsed")
+
+            if st.button("Create Account", type="primary", use_container_width=True, key="create_btn"):
+                st.toast("Account creation is coming soon! Use the demo account to explore.", icon="ℹ️")
+
+            st.markdown('<div class="login-bottom">Already have an account?</div>',
+                        unsafe_allow_html=True)
+            if st.button("← Sign in", key="go_signin", use_container_width=False):
+                st.session_state["login_view"]  = "signin"
+                st.session_state["login_error"] = False
+                st.rerun()
+
+
 def _render_client_dashboard_tab():
     """Client Finance Dashboard — adapted from Personal Finance Dashboard.
 
@@ -2076,6 +2371,20 @@ def _render_client_dashboard_tab():
 
 def main():
     _initialize_session_state()
+
+    # ── Login gate — show login page until authenticated ──────────────────
+    if not st.session_state.get("authenticated"):
+        _render_login_page()
+        return
+
+    # ── Show user badge fixed top-right ───────────────────────────────────
+    user_name = st.session_state.get("user_name", "")
+    if user_name:
+        st.markdown(
+            f'<div class="user-top-badge">👤 {user_name}</div>',
+            unsafe_allow_html=True,
+        )
+
     _apply_page_style()
     _render_sidebar()
     _render_dashboard()
