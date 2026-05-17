@@ -7,3 +7,6 @@ sentence-transformers
 numpy
 anthropic
 matplotlib
+supabase
+bcrypt
+python-dotenv

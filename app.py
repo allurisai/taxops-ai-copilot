@@ -167,380 +167,621 @@ def _initialize_session_state():
 
 
 def _apply_page_style():
-    """Apply corporate professional styling."""
+    """Apply premium dark SaaS theme — Linear / Vercel aesthetic."""
     st.markdown(
         """
         <style>
-            /* ── Global font & base ─────────────────────────────────────── */
-            html, body, .main .block-container, [class*="css"] {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                             'Helvetica Neue', Arial, sans-serif;
-            }
+        /* ════════════════════════════════════════════════════════════════
+           GLOBAL RESET & FONT
+        ════════════════════════════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body, .main .block-container, p, span, div, label, input, textarea, select {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                         'Inter', 'Helvetica Neue', Arial, sans-serif !important;
+            color: #FFFFFF;
+        }
 
-            /* ── Fix sidebar toggle icon text rendering ──────────────────
-               Streamlit's sidebar collapse button uses Material Icons ligatures.
-               When the font is overridden those render as raw text like
-               "keyboard_double_arrow_right". Hide the text and inject a
-               plain Unicode arrow so the button remains visible and clickable. */
-            [data-testid="collapsedControl"] span,
-            button[data-testid="baseButton-header"] span {
-                font-size: 0 !important;
-                visibility: hidden !important;
-            }
-            [data-testid="collapsedControl"] button::after,
-            button[data-testid="baseButton-header"]::after {
-                content: "›";
-                font-size: 1.4rem;
-                font-weight: 700;
-                visibility: visible !important;
-                color: #64748b;
-                font-family: serif;
-            }
-            .stApp { background: #f1f5f9; }
-            .block-container {
-                max-width: 1200px;
-                padding-top: 1rem;
-                padding-bottom: 2.5rem;
-            }
+        /* ── Hide ALL default Streamlit branding & chrome ─────────────── */
+        #MainMenu, footer, header { display: none !important; }
+        [data-testid="stToolbar"]     { display: none !important; }
+        [data-testid="stDecoration"]  { display: none !important; }
+        [data-testid="stStatusWidget"]{ display: none !important; }
 
-            /* ── Sidebar ────────────────────────────────────────────────── */
-            section[data-testid="stSidebar"] {
-                min-width: 260px !important;
-                max-width: 260px !important;
-                background: #ffffff;
-                border-right: 1px solid #e2e8f0;
-            }
-            section[data-testid="stSidebar"] > div {
-                min-width: 260px !important;
-                max-width: 260px !important;
-            }
-            [data-testid="stSidebar"] .block-container {
-                padding-top: 1rem;
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
+        /* ── Fix sidebar toggle icon text (Material Icons ligature fallback) */
+        [data-testid="collapsedControl"] span,
+        button[data-testid="baseButton-header"] span {
+            font-size: 0 !important; visibility: hidden !important;
+        }
+        [data-testid="collapsedControl"] button::after,
+        button[data-testid="baseButton-header"]::after {
+            content: "›"; font-size: 1.4rem; font-weight: 700;
+            visibility: visible !important; color: #8892A4; font-family: serif;
+        }
 
-            /* ── Tabs — clean underline style ───────────────────────────── */
-            [data-testid="stTabs"] {
-                border-bottom: 1px solid #e2e8f0;
-            }
-            [data-testid="stTabs"] button {
-                border-radius: 0;
-                padding: 0.65rem 1.1rem;
-                font-weight: 500;
-                font-size: 0.875rem;
-                color: #64748b;
-                background: transparent;
-                border: none;
-                border-bottom: 2px solid transparent;
-                margin-bottom: -1px;
-            }
-            [data-testid="stTabs"] button:hover { color: #1e293b; }
-            [data-testid="stTabs"] button[aria-selected="true"] {
-                color: #2563eb;
-                border-bottom: 2px solid #2563eb;
-                background: transparent;
-                box-shadow: none;
-                font-weight: 600;
-            }
+        /* ════════════════════════════════════════════════════════════════
+           APP BACKGROUND
+        ════════════════════════════════════════════════════════════════ */
+        .stApp {
+            background: #0A0F1E !important;
+        }
+        .block-container {
+            max-width: 1240px;
+            padding-top: 1.25rem;
+            padding-bottom: 3rem;
+        }
 
-            /* ── Buttons ────────────────────────────────────────────────── */
-            div.stButton > button {
-                border-radius: 6px;
-                padding: 0.5rem 0.95rem;
-                font-weight: 500;
-                font-size: 0.875rem;
-                border: 1px solid #e2e8f0;
-                background: #ffffff;
-                color: #1e293b;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
-            }
-            div.stButton > button:hover {
-                background: #f8fafc;
-                border-color: #cbd5e1;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            }
-            div.stButton > button[kind="primary"] {
-                background: #2563eb;
-                color: #ffffff;
-                border-color: #2563eb;
-                box-shadow: 0 1px 3px rgba(37,99,235,0.25);
-            }
-            div.stButton > button[kind="primary"]:hover {
-                background: #1d4ed8;
-                border-color: #1d4ed8;
-                box-shadow: 0 2px 6px rgba(37,99,235,0.3);
-            }
-            div.stDownloadButton > button {
-                border-radius: 6px;
-                font-weight: 500;
-                background: #1e293b;
-                color: #ffffff;
-                border-color: #1e293b;
-                box-shadow: none;
-            }
-            div.stDownloadButton > button:hover {
-                background: #0f172a;
-                border-color: #0f172a;
-            }
+        /* ════════════════════════════════════════════════════════════════
+           SIDEBAR
+        ════════════════════════════════════════════════════════════════ */
+        section[data-testid="stSidebar"] {
+            background: #0D1117 !important;
+            border-right: 1px solid #1E2533 !important;
+            min-width: 264px !important;
+            max-width: 264px !important;
+        }
+        section[data-testid="stSidebar"] > div {
+            min-width: 264px !important;
+            max-width: 264px !important;
+        }
+        [data-testid="stSidebar"] .block-container {
+            padding-top: 1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        /* Sidebar text */
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] .stMarkdown { color: #8892A4 !important; }
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3 { color: #FFFFFF !important; font-size: 0.78rem !important;
+            text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+        /* Sidebar nav items hover */
+        [data-testid="stSidebar"] .stMarkdown li {
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+        [data-testid="stSidebar"] .stMarkdown li:hover { background: #1E2533; }
 
-            /* ── Containers ─────────────────────────────────────────────── */
-            div[data-testid="stVerticalBlockBorderWrapper"] {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            }
+        /* ════════════════════════════════════════════════════════════════
+           TABS
+        ════════════════════════════════════════════════════════════════ */
+        [data-testid="stTabs"] {
+            border-bottom: 1px solid #1E2533;
+            background: transparent;
+        }
+        [data-testid="stTabs"] button {
+            border-radius: 0;
+            padding: 0.7rem 1.15rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #8892A4 !important;
+            background: transparent !important;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+        [data-testid="stTabs"] button:hover { color: #FFFFFF !important; }
+        [data-testid="stTabs"] button[aria-selected="true"] {
+            color: #4F8EF7 !important;
+            border-bottom: 2px solid #4F8EF7 !important;
+            background: transparent !important;
+            box-shadow: none;
+            font-weight: 600;
+        }
 
-            /* ── Metrics ────────────────────────────────────────────────── */
-            [data-testid="stMetric"] {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 0.85rem 1rem;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            }
-            [data-testid="stMetricValue"] {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: #1e293b;
-            }
-            [data-testid="stMetricLabel"] {
-                color: #64748b;
-                font-size: 0.8rem;
-                font-weight: 500;
-            }
+        /* ════════════════════════════════════════════════════════════════
+           BUTTONS
+        ════════════════════════════════════════════════════════════════ */
+        div.stButton > button {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            border: 1px solid #2D3748;
+            background: #161B27;
+            color: #FFFFFF !important;
+            box-shadow: none;
+            transition: background 0.2s ease, border-color 0.2s ease,
+                        transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        div.stButton > button:hover {
+            background: #1E2533;
+            border-color: #4F8EF7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(79,142,247,0.2);
+        }
+        div.stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #4F8EF7 0%, #7B5CF7 100%) !important;
+            border: none !important;
+            color: #FFFFFF !important;
+            font-weight: 600;
+            box-shadow: 0 2px 12px rgba(79,142,247,0.3);
+        }
+        div.stButton > button[kind="primary"]:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(79,142,247,0.45);
+        }
+        div.stButton > button[kind="secondary"] {
+            background: transparent !important;
+            border: 1px solid #2D3748 !important;
+            color: #8892A4 !important;
+        }
+        div.stButton > button[kind="secondary"]:hover {
+            border-color: #4F8EF7 !important;
+            color: #4F8EF7 !important;
+            transform: translateY(-1px);
+        }
+        /* Download button */
+        div.stDownloadButton > button {
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4F8EF7 0%, #7B5CF7 100%);
+            border: none;
+            color: #FFFFFF !important;
+            font-weight: 600;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        div.stDownloadButton > button:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
 
-            /* ── Inputs / file uploader / expanders ─────────────────────── */
-            [data-testid="stFileUploader"] section {
-                border-radius: 6px;
-                border: 1px dashed #cbd5e1;
-                background: #f8fafc;
-            }
-            [data-baseweb="input"] > div,
-            [data-baseweb="textarea"] > div,
-            [data-baseweb="select"] > div,
-            [data-baseweb="tag"] { border-radius: 6px !important; }
-            [data-testid="stExpander"] details {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                overflow: hidden;
-                box-shadow: none;
-            }
+        /* ════════════════════════════════════════════════════════════════
+           CARDS / CONTAINERS
+        ════════════════════════════════════════════════════════════════ */
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background: #161B27 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+            border-color: rgba(79,142,247,0.3) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+        }
 
-            /* ── HERO SECTION ───────────────────────────────────────────── */
-            .hero-shell {
-                background: #1e293b;
-                border-radius: 8px;
-                padding: 2.5rem 3rem;
-                margin-bottom: 1.25rem;
-                display: grid;
-                grid-template-columns: 1fr auto;
-                gap: 3rem;
-                align-items: center;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-            }
-            .hero-badge {
-                display: inline-block;
-                padding: 0.2rem 0.6rem;
-                background: rgba(37,99,235,0.18);
-                border: 1px solid rgba(37,99,235,0.32);
-                border-radius: 4px;
-                color: #93c5fd;
-                font-size: 0.64rem;
-                font-weight: 700;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                margin-bottom: 0.6rem;
-            }
-            .hero-title {
-                color: #ffffff !important;
-                font-size: 2.4rem !important;
-                font-weight: 700 !important;
-                letter-spacing: -0.02em !important;
-                margin: 0 0 0.4rem !important;
-                line-height: 1.1 !important;
-            }
-            .hero-subtitle {
-                color: #94a3b8;
-                font-size: 0.9rem;
-                margin: 0 0 1.1rem;
-                line-height: 1.5;
-            }
-            .hero-chip {
-                display: inline-block;
-                padding: 0.2rem 0.6rem;
-                background: rgba(255,255,255,0.07);
-                border: 1px solid rgba(255,255,255,0.11);
-                border-radius: 4px;
-                color: #94a3b8;
-                font-size: 0.72rem;
-                font-weight: 500;
-                margin-right: 0.35rem;
-                margin-bottom: 0.25rem;
-            }
-            .hero-stats {
-                display: grid;
-                grid-template-columns: repeat(2, 148px);
-                gap: 0.6rem;
-            }
-            .hero-stat-card {
-                background: rgba(255,255,255,0.05);
-                border: 1px solid rgba(255,255,255,0.09);
-                border-radius: 6px;
-                padding: 0.8rem 0.9rem;
-            }
-            .hero-stat-icon { font-size: 0.95rem; margin-bottom: 0.2rem; display: block; }
-            .hero-stat-label {
-                color: #64748b;
-                font-size: 0.62rem;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                margin-bottom: 0.15rem;
-            }
-            .hero-stat-value {
-                color: #e2e8f0;
-                font-size: 0.82rem;
-                font-weight: 600;
-                word-break: break-word;
-            }
+        /* ════════════════════════════════════════════════════════════════
+           METRIC CARDS
+        ════════════════════════════════════════════════════════════════ */
+        [data-testid="stMetric"] {
+            background: #161B27 !important;
+            border: 1px solid #2D3748 !important;
+            border-left: 3px solid #4F8EF7 !important;
+            border-radius: 12px !important;
+            padding: 1.25rem 1.25rem !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.25) !important;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+        [data-testid="stMetric"]:hover {
+            border-color: #4F8EF7 !important;
+            transform: translateY(-1px);
+        }
+        [data-testid="stMetricValue"] {
+            font-size: 1.6rem !important;
+            font-weight: 700 !important;
+            color: #FFFFFF !important;
+        }
+        [data-testid="stMetricLabel"] {
+            color: #8892A4 !important;
+            font-size: 0.78rem !important;
+            font-weight: 500 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        [data-testid="stMetricDelta"] { font-size: 0.8rem !important; }
 
-            /* ── FEATURE CARDS GRID ─────────────────────────────────────── */
-            .feat-grid {
-                display: grid;
-                gap: 0.75rem;
-                margin-bottom: 1.1rem;
-                align-items: stretch;
-            }
-            .feat-card {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-top: 2px solid var(--feat-accent, #2563eb);
-                border-radius: 6px;
-                padding: 1.2rem 1.25rem;
-                display: flex;
-                flex-direction: column;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-                transition: box-shadow 0.15s ease, border-top-color 0.15s ease;
-            }
-            .feat-card:hover {
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            }
-            .feat-icon {
-                font-size: 1.4rem;
-                margin-bottom: 0.55rem;
-                display: block;
-            }
-            .feat-title {
-                font-size: 0.9rem;
-                font-weight: 600;
-                color: #1e293b;
-                margin: 0 0 0.35rem;
-            }
-            .feat-desc {
-                font-size: 0.82rem;
-                color: #475569;
-                line-height: 1.55;
-                margin: 0 0 auto;
-                padding-bottom: 0.75rem;
-            }
-            .feat-io {
-                font-size: 0.76rem;
-                color: #94a3b8;
-                line-height: 1.5;
-                border-top: 1px solid #f1f5f9;
-                padding-top: 0.65rem;
-                margin-top: 0.1rem;
-            }
-            .feat-io strong { color: #64748b; }
+        /* ════════════════════════════════════════════════════════════════
+           INPUT FIELDS
+        ════════════════════════════════════════════════════════════════ */
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stTextArea"] textarea,
+        div[data-testid="stNumberInput"] input {
+            background: #1E2533 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 8px !important;
+            color: #FFFFFF !important;
+            font-size: 0.9rem !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        div[data-testid="stTextInput"] input::placeholder,
+        div[data-testid="stTextArea"] textarea::placeholder { color: #4a5568 !important; }
+        div[data-testid="stTextInput"] input:focus,
+        div[data-testid="stTextArea"] textarea:focus,
+        div[data-testid="stNumberInput"] input:focus {
+            border-color: #4F8EF7 !important;
+            box-shadow: 0 0 0 3px rgba(79,142,247,0.15) !important;
+            outline: none !important;
+        }
+        div[data-testid="stTextInput"] > div,
+        div[data-testid="stTextArea"] > div { border: none !important; background: transparent !important; }
+        div[data-testid="stTextInput"] label,
+        div[data-testid="stTextArea"] label,
+        div[data-testid="stNumberInput"] label { color: #8892A4 !important; font-size: 0.82rem !important; }
 
-            /* ── ACTION STRIP & WORKSPACE SECTION ───────────────────────── */
-            .action-strip {
-                display: grid;
-                grid-template-columns: 1fr 1fr auto;
-                gap: 0.75rem;
-                align-items: center;
-                margin-bottom: 1rem;
-            }
-            .action-meta { color: #64748b; font-size: 0.85rem; text-align: right; }
-            .ws-section-title {
-                font-size: 0.72rem;
-                font-weight: 700;
-                color: #94a3b8;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                margin-bottom: 0.6rem;
-            }
-            .ws-pill {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.25rem;
-                padding: 0.22rem 0.6rem;
-                background: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 4px;
-                color: #475569;
-                font-size: 0.74rem;
-                font-weight: 500;
-                margin-right: 0.35rem;
-                margin-bottom: 0.3rem;
-            }
+        /* ── Selectbox / multiselect — input box ──────────────────────── */
+        [data-baseweb="select"] > div {
+            background: #1E2533 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 8px !important;
+            color: #FFFFFF !important;
+            transition: border-color 0.2s ease;
+        }
+        [data-baseweb="select"] > div:focus-within { border-color: #4F8EF7 !important; }
+        [data-baseweb="input"] > div { background: #1E2533 !important; border-radius: 8px !important; }
+        [data-baseweb="tag"] {
+            background: rgba(79,142,247,0.15) !important;
+            border: 1px solid rgba(79,142,247,0.3) !important;
+            border-radius: 6px !important;
+            color: #FFFFFF !important;
+        }
+        [data-baseweb="tag"] span { color: #FFFFFF !important; }
 
-            /* ── MISC HELPERS ───────────────────────────────────────────── */
-            .section-copy { color: #64748b; font-size: 0.875rem; margin-bottom: 0.35rem; }
-            .chip-row { margin-top: 0.3rem; margin-bottom: 0.15rem; }
-            .tag-chip {
-                display: inline-block;
-                margin-right: 0.35rem; margin-bottom: 0.35rem;
-                padding: 0.2rem 0.6rem;
-                border-radius: 4px;
-                background: #f1f5f9; color: #334155;
-                font-size: 0.74rem; font-weight: 500;
-                border: 1px solid #e2e8f0;
-            }
-            .eyebrow { color: #64748b; font-size: 0.74rem; font-weight: 600; margin-bottom: 0.15rem; }
-            .soft-note {
-                background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;
-                padding: 0.9rem 1rem; margin-bottom: 0.75rem;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            }
-            .soft-note h4 { margin: 0 0 0.2rem; color: #1e293b; font-size: 0.9rem; font-weight: 600; }
-            .soft-note p, .soft-note li { color: #64748b; font-size: 0.85rem; line-height: 1.45; }
-            .soft-note ul { margin: 0.3rem 0 0; padding-left: 1rem; }
-            .microcopy { color: #64748b; font-size: 0.84rem; }
-            .answer-proof {
-                background: #f8fafc; border: 1px solid #e2e8f0;
-                border-left: 3px solid #2563eb;
-                padding: 0.75rem 0.9rem; border-radius: 6px;
-                color: #334155; font-size: 0.88rem;
-            }
-            .module-tile { height: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
-            .module-tile-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-            .module-tile-title { color: #1e293b; font-size: 0.9rem; font-weight: 600; }
-            .module-pill {
-                font-size: 0.7rem; padding: 0.18rem 0.45rem; border-radius: 4px;
-                background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; font-weight: 500;
-            }
-            .module-copy { color: #64748b; font-size: 0.875rem; line-height: 1.5; }
-            .module-meta { color: #475569; font-size: 0.8rem; line-height: 1.45; }
-            .workspace-actions-note { color: #64748b; font-size: 0.8rem; margin-top: 0.15rem; }
+        /* ── Dropdown popup — THE white modal fix ──────────────────────
+           Streamlit renders selectbox/multiselect options inside a
+           floating [data-baseweb="popover"] container. Without this,
+           the popup is white and covers the content beneath it.       */
+        [data-baseweb="popover"],
+        [data-baseweb="popover"] > div,
+        [data-baseweb="popover"] > div > div {
+            background: #1E2533 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+        }
+        [data-baseweb="menu"],
+        [data-baseweb="menu"] ul,
+        ul[data-baseweb="menu-list"],
+        [role="listbox"] {
+            background: #1E2533 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 8px !important;
+        }
+        [data-baseweb="option"],
+        [role="option"] {
+            background: #1E2533 !important;
+            color: #FFFFFF !important;
+        }
+        [data-baseweb="option"]:hover,
+        [role="option"]:hover {
+            background: #2D3748 !important;
+            color: #FFFFFF !important;
+        }
+        [data-baseweb="option"][aria-selected="true"],
+        [role="option"][aria-selected="true"] {
+            background: rgba(79,142,247,0.18) !important;
+            color: #4F8EF7 !important;
+        }
 
-            /* ── RESPONSIVE ─────────────────────────────────────────────── */
-            @media (max-width: 960px) {
-                .hero-shell { grid-template-columns: 1fr; padding: 2rem; gap: 2rem; }
-                .hero-stats { grid-template-columns: repeat(4, 1fr); }
-                .hero-title { font-size: 1.9rem !important; }
-                .feat-grid { grid-template-columns: repeat(2, 1fr) !important; }
-                .action-strip { grid-template-columns: 1fr; }
-                .action-meta { text-align: left; }
-            }
-            @media (max-width: 640px) {
-                .hero-stats { grid-template-columns: repeat(2, 1fr); }
-                .feat-grid { grid-template-columns: 1fr !important; }
-            }
+        /* ── Tooltip / help popup ──────────────────────────────────────── */
+        [data-baseweb="tooltip"],
+        [data-baseweb="tooltip"] > div,
+        [data-testid="stTooltipContent"],
+        [data-testid="stTooltipContent"] > div {
+            background: #1E2533 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 8px !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+        }
+
+        /* File uploader */
+        [data-testid="stFileUploader"] section {
+            background: #1E2533 !important;
+            border: 1px dashed #2D3748 !important;
+            border-radius: 10px !important;
+            transition: border-color 0.2s ease;
+        }
+        [data-testid="stFileUploader"] section:hover { border-color: #4F8EF7 !important; }
+        [data-testid="stFileUploader"] label { color: #8892A4 !important; }
+
+        /* Expanders */
+        [data-testid="stExpander"] details {
+            background: #161B27 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 10px !important;
+            overflow: hidden;
+        }
+        [data-testid="stExpander"] summary {
+            color: #FFFFFF !important;
+            font-weight: 500;
+        }
+        [data-testid="stExpander"] summary:hover { color: #4F8EF7 !important; }
+
+        /* Checkbox & Radio */
+        div[data-testid="stCheckbox"] label p,
+        div[data-testid="stRadio"] label p { color: #8892A4 !important; }
+        div[data-testid="stCheckbox"] label p:hover,
+        div[data-testid="stRadio"] label p:hover { color: #FFFFFF !important; }
+
+        /* Toggle */
+        div[data-testid="stToggle"] label { color: #8892A4 !important; }
+
+        /* Dataframe / Table */
+        [data-testid="stDataFrame"] {
+            border: 1px solid #2D3748 !important;
+            border-radius: 10px !important;
+            overflow: hidden;
+        }
+        iframe[data-testid="stDataFrameResizable"] { border-radius: 10px !important; }
+
+        /* Progress / Slider */
+        [data-baseweb="slider"] [data-testid="stSlider"] { color: #4F8EF7 !important; }
+
+        /* Caption / small text */
+        .stCaption, [data-testid="stCaptionContainer"] { color: #8892A4 !important; }
+
+        /* ── Alert / notification boxes ──────────────────────────────── */
+        [data-testid="stAlert"] {
+            border-radius: 10px !important;
+            border-left-width: 3px !important;
+        }
+        div[data-testid="stInfo"] {
+            background: rgba(79,142,247,0.08) !important;
+            border-color: rgba(79,142,247,0.35) !important;
+            color: #FFFFFF !important;
+        }
+        div[data-testid="stSuccess"] {
+            background: rgba(16,185,129,0.08) !important;
+            border-color: rgba(16,185,129,0.35) !important;
+            color: #FFFFFF !important;
+        }
+        div[data-testid="stWarning"] {
+            background: rgba(245,158,11,0.08) !important;
+            border-color: rgba(245,158,11,0.35) !important;
+            color: #FFFFFF !important;
+        }
+        div[data-testid="stError"] {
+            background: rgba(239,68,68,0.08) !important;
+            border-color: rgba(239,68,68,0.35) !important;
+            color: #FFFFFF !important;
+        }
+        [data-testid="stAlert"] p,
+        [data-testid="stAlert"] span { color: #FFFFFF !important; }
+
+        /* ── Form containers ──────────────────────────────────────────── */
+        [data-testid="stForm"] {
+            background: #161B27 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 12px !important;
+        }
+
+        /* ── Number input ─────────────────────────────────────────────── */
+        [data-testid="stNumberInput"] > div {
+            background: #1E2533 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 8px !important;
+        }
+        [data-testid="stNumberInput"] button {
+            background: #2D3748 !important;
+            border: none !important;
+            color: #FFFFFF !important;
+        }
+        [data-testid="stNumberInput"] button:hover { background: #4F8EF7 !important; }
+
+        /* ── Date / time inputs ───────────────────────────────────────── */
+        [data-testid="stDateInput"] input,
+        [data-testid="stTimeInput"] input {
+            background: #1E2533 !important;
+            border: 1px solid #2D3748 !important;
+            border-radius: 8px !important;
+            color: #FFFFFF !important;
+        }
+        [data-testid="stDateInput"] > div,
+        [data-testid="stTimeInput"] > div {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* ── Code blocks ──────────────────────────────────────────────── */
+        [data-testid="stCode"],
+        [data-testid="stCode"] > div,
+        .stCode { background: #161B27 !important; border-radius: 8px !important; }
+        code {
+            background: rgba(79,142,247,0.1) !important;
+            color: #4F8EF7 !important;
+            border-radius: 4px !important;
+            padding: 0.1em 0.3em !important;
+        }
+        pre code { background: transparent !important; color: #FFFFFF !important; padding: 0 !important; }
+
+        /* ── JSON display ─────────────────────────────────────────────── */
+        [data-testid="stJson"] { background: #161B27 !important; border-radius: 8px !important; }
+
+        /* ── Tab content panel ────────────────────────────────────────── */
+        [role="tabpanel"] { background: transparent !important; }
+
+        /* ── General wrappers that can bleed white ────────────────────── */
+        .element-container,
+        .stColumn,
+        [data-testid="column"],
+        [data-testid="stHorizontalBlock"] { background: transparent !important; }
+        .main, [data-testid="stAppViewContainer"],
+        [data-testid="stMainBlockContainer"] { background: transparent !important; }
+
+        /* ── Spinner ──────────────────────────────────────────────────── */
+        [data-testid="stSpinner"] { color: #4F8EF7 !important; }
+
+        /* ════════════════════════════════════════════════════════════════
+           HERO SECTION
+        ════════════════════════════════════════════════════════════════ */
+        .hero-shell {
+            background: linear-gradient(135deg, #111827 0%, #0D1117 100%);
+            border: 1px solid #2D3748;
+            border-radius: 14px;
+            padding: 2.5rem 3rem;
+            margin-bottom: 1.25rem;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 3rem;
+            align-items: center;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4),
+                        inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 0.2rem 0.65rem;
+            background: rgba(79,142,247,0.15);
+            border: 1px solid rgba(79,142,247,0.3);
+            border-radius: 4px;
+            color: #4F8EF7;
+            font-size: 0.64rem; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            margin-bottom: 0.65rem;
+        }
+        .hero-title {
+            color: #FFFFFF !important;
+            font-size: 2.4rem !important; font-weight: 700 !important;
+            letter-spacing: -0.025em !important;
+            margin: 0 0 0.4rem !important; line-height: 1.1 !important;
+        }
+        .hero-subtitle { color: #8892A4; font-size: 0.9rem; margin: 0 0 1.1rem; line-height: 1.55; }
+        .hero-chip {
+            display: inline-block; padding: 0.2rem 0.6rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px; color: #8892A4;
+            font-size: 0.72rem; font-weight: 500;
+            margin-right: 0.35rem; margin-bottom: 0.25rem;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+        .hero-chip:hover { border-color: #4F8EF7; color: #4F8EF7; }
+        .hero-stats { display: grid; grid-template-columns: repeat(2, 148px); gap: 0.65rem; }
+        .hero-stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #2D3748;
+            border-radius: 8px; padding: 0.85rem 1rem;
+            transition: border-color 0.2s ease;
+        }
+        .hero-stat-card:hover { border-color: rgba(79,142,247,0.4); }
+        .hero-stat-icon { font-size: 1rem; margin-bottom: 0.25rem; display: block; }
+        .hero-stat-label {
+            color: #8892A4; font-size: 0.62rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.15rem;
+        }
+        .hero-stat-value { color: #FFFFFF; font-size: 0.85rem; font-weight: 600; word-break: break-word; }
+
+        /* ════════════════════════════════════════════════════════════════
+           FEATURE CARDS GRID
+        ════════════════════════════════════════════════════════════════ */
+        .feat-grid {
+            display: grid; gap: 0.8rem;
+            margin-bottom: 1.25rem; align-items: stretch;
+        }
+        .feat-card {
+            background: #161B27;
+            border: 1px solid #2D3748;
+            border-top: 2px solid var(--feat-accent, #4F8EF7);
+            border-radius: 12px; padding: 1.3rem 1.35rem;
+            display: flex; flex-direction: column;
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .feat-card:hover {
+            border-color: var(--feat-accent, #4F8EF7);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+        }
+        .feat-icon { font-size: 1.5rem; margin-bottom: 0.6rem; display: block; }
+        .feat-title { font-size: 0.9rem; font-weight: 600; color: #FFFFFF; margin: 0 0 0.4rem; }
+        .feat-desc {
+            font-size: 0.82rem; color: #8892A4;
+            line-height: 1.55; margin: 0 0 auto; padding-bottom: 0.8rem;
+        }
+        .feat-io {
+            font-size: 0.75rem; color: #4a5568;
+            line-height: 1.5; border-top: 1px solid #2D3748;
+            padding-top: 0.65rem; margin-top: 0.1rem;
+        }
+        .feat-io strong { color: #8892A4; }
+
+        /* ════════════════════════════════════════════════════════════════
+           WORKSPACE / ACTION STRIPS
+        ════════════════════════════════════════════════════════════════ */
+        .action-strip { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
+        .action-meta { color: #8892A4; font-size: 0.85rem; text-align: right; }
+        .ws-section-title {
+            font-size: 0.7rem; font-weight: 700; color: #4a5568;
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.65rem;
+        }
+        .ws-pill {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.22rem 0.6rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #2D3748;
+            border-radius: 4px; color: #8892A4;
+            font-size: 0.73rem; font-weight: 500;
+            margin-right: 0.35rem; margin-bottom: 0.3rem;
+        }
+
+        /* ════════════════════════════════════════════════════════════════
+           MISC HELPERS
+        ════════════════════════════════════════════════════════════════ */
+        .section-copy { color: #8892A4; font-size: 0.875rem; margin-bottom: 0.35rem; }
+        .chip-row { margin-top: 0.3rem; margin-bottom: 0.15rem; }
+        .tag-chip {
+            display: inline-block; margin-right: 0.35rem; margin-bottom: 0.35rem;
+            padding: 0.2rem 0.6rem; border-radius: 4px;
+            background: rgba(79,142,247,0.1); color: #4F8EF7;
+            font-size: 0.73rem; font-weight: 500;
+            border: 1px solid rgba(79,142,247,0.2);
+        }
+        .eyebrow { color: #8892A4; font-size: 0.74rem; font-weight: 600; margin-bottom: 0.15rem; }
+        .soft-note {
+            background: #161B27; border: 1px solid #2D3748; border-radius: 10px;
+            padding: 0.9rem 1rem; margin-bottom: 0.75rem;
+        }
+        .soft-note h4 { margin: 0 0 0.2rem; color: #FFFFFF; font-size: 0.9rem; font-weight: 600; }
+        .soft-note p, .soft-note li { color: #8892A4; font-size: 0.85rem; line-height: 1.45; }
+        .soft-note ul { margin: 0.3rem 0 0; padding-left: 1rem; }
+        .microcopy { color: #8892A4; font-size: 0.84rem; }
+        .answer-proof {
+            background: #161B27; border: 1px solid #2D3748;
+            border-left: 3px solid #4F8EF7;
+            padding: 0.8rem 1rem; border-radius: 8px;
+            color: #FFFFFF; font-size: 0.88rem;
+        }
+        .module-tile { height: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
+        .module-tile-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+        .module-tile-title { color: #FFFFFF; font-size: 0.9rem; font-weight: 600; }
+        .module-pill {
+            font-size: 0.7rem; padding: 0.18rem 0.48rem; border-radius: 4px;
+            background: rgba(79,142,247,0.12); color: #4F8EF7;
+            border: 1px solid rgba(79,142,247,0.25); font-weight: 500;
+        }
+        .module-copy { color: #8892A4; font-size: 0.875rem; line-height: 1.5; }
+        .module-meta { color: #8892A4; font-size: 0.8rem; line-height: 1.45; }
+        .workspace-actions-note { color: #8892A4; font-size: 0.8rem; margin-top: 0.15rem; }
+
+        /* ── User badge (top-right) ──────────────────────────────────── */
+        .user-top-badge {
+            position: fixed; top: 0.7rem; right: 1rem; z-index: 9999;
+            background: rgba(79,142,247,0.1);
+            border: 1px solid rgba(79,142,247,0.25);
+            border-radius: 20px; padding: 0.25rem 0.8rem;
+            color: #4F8EF7; font-size: 0.78rem; font-weight: 600;
+            pointer-events: none;
+        }
+
+        /* ════════════════════════════════════════════════════════════════
+           RESPONSIVE
+        ════════════════════════════════════════════════════════════════ */
+        @media (max-width: 960px) {
+            .hero-shell { grid-template-columns: 1fr; padding: 2rem; gap: 2rem; }
+            .hero-stats { grid-template-columns: repeat(4, 1fr); }
+            .hero-title { font-size: 1.9rem !important; }
+            .feat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .action-strip { grid-template-columns: 1fr; }
+            .action-meta { text-align: left; }
+        }
+        @media (max-width: 640px) {
+            .hero-stats { grid-template-columns: repeat(2, 1fr); }
+            .feat-grid { grid-template-columns: 1fr !important; }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -970,20 +1211,22 @@ def _render_dashboard():
 
 
 def _render_sidebar():
-    """Render a compact sidebar."""
+    """Render a compact sidebar with user profile at top and sign-out at bottom."""
     with st.sidebar:
-        # ── User info + sign out ──────────────────────────────────────────
-        user_name = st.session_state.get("user_name", "")
+        # ── User profile (top) ────────────────────────────────────────────
+        user_name  = st.session_state.get("user_name", "")
+        user_email = st.session_state.get("user_email", "")
         if user_name:
-            st.markdown(f"👤 **{user_name}**")
-            st.caption(st.session_state.get("user_email", ""))
-            if st.button("Sign Out", use_container_width=True):
-                st.session_state["authenticated"] = False
-                st.session_state["user_name"] = ""
-                st.session_state["user_email"] = ""
-                st.session_state["login_error"] = False
-                st.rerun()
-            st.markdown("---")
+            st.markdown(
+                f"""<div style="
+                    background:rgba(79,142,247,0.08);
+                    border:1px solid rgba(79,142,247,0.18);
+                    border-radius:10px;padding:0.75rem 0.9rem;margin-bottom:0.75rem;">
+                    <div style="font-weight:700;color:#ffffff;font-size:0.9rem;">👤 {user_name}</div>
+                    <div style="color:#64748b;font-size:0.75rem;margin-top:0.15rem;">{user_email}</div>
+                </div>""",
+                unsafe_allow_html=True,
+            )
 
         st.markdown("### Workspace")
 
@@ -1026,6 +1269,19 @@ def _render_sidebar():
         st.toggle("Show debug panels", key="show_debug_panels")
         if st.session_state.get("retrieval_mode"):
             st.caption(f"Retrieval mode: {st.session_state['retrieval_mode']}")
+
+        # ── Sign Out (bottom of sidebar) ──────────────────────────────────
+        if st.session_state.get("user_name"):
+            st.markdown("---")
+            if st.button("🚪  Sign Out", use_container_width=True, key="sidebar_signout"):
+                st.session_state.update({
+                    "authenticated": False,
+                    "user_name":     "",
+                    "user_email":    "",
+                    "login_error":   False,
+                    "login_view":    "signin",
+                })
+                st.rerun()
 
 
 def _render_citation_blocks(result):
@@ -1811,112 +2067,143 @@ def _render_automations_tab():
 
 _LOGIN_CSS = """
 <style>
-/* ── Hide all Streamlit chrome on login page ──────────────────────────── */
-#MainMenu, footer, header { visibility: hidden !important; }
-[data-testid="stToolbar"] { display: none !important; }
-[data-testid="stDecoration"] { display: none !important; }
-[data-testid="stStatusWidget"] { display: none !important; }
-[data-testid="collapsedControl"] { display: none !important; }
-section[data-testid="stSidebar"] { display: none !important; }
+/* ── Hide all Streamlit chrome on login page ───────────────────────────── */
+#MainMenu, footer, header                 { visibility: hidden !important; }
+[data-testid="stToolbar"]                 { display: none !important; }
+[data-testid="stDecoration"]              { display: none !important; }
+[data-testid="stStatusWidget"]            { display: none !important; }
+[data-testid="collapsedControl"]          { display: none !important; }
+section[data-testid="stSidebar"]          { display: none !important; }
 
-/* ── Full screen dark background ──────────────────────────────────────── */
+/* ── Full-screen dark background with subtle gradient ──────────────────── */
 .stApp {
     background: #0A0F1E !important;
     background-image:
-        radial-gradient(ellipse at 20% 60%, rgba(79,142,247,0.08) 0%, transparent 55%),
-        radial-gradient(ellipse at 80% 20%, rgba(123,92,247,0.08) 0%, transparent 55%),
-        radial-gradient(ellipse at 50% 100%, rgba(79,142,247,0.04) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 55%, rgba(79,142,247,0.09) 0%, transparent 50%),
+        radial-gradient(ellipse at 78% 18%, rgba(123,92,247,0.09) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 95%, rgba(79,142,247,0.05) 0%, transparent 45%);
     min-height: 100vh;
 }
-
 .block-container {
-    padding-top: 4rem !important;
+    padding-top: 3.5rem !important;
     padding-bottom: 2rem !important;
     max-width: 100% !important;
 }
 
-/* ── Logo area ─────────────────────────────────────────────────────────── */
-.ytc-logo { text-align: center; margin-bottom: 2.25rem; }
+/* ── Login card — styled bordered container ────────────────────────────── */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #111827 !important;
+    border: 1px solid #2D3748 !important;
+    border-radius: 16px !important;
+    padding: 2.5rem 2.25rem !important;
+    box-shadow:
+        0 0 0 1px rgba(79,142,247,0.06),
+        0 25px 60px rgba(0,0,0,0.55),
+        0 0 90px rgba(79,142,247,0.07) !important;
+}
+
+/* ── Logo ──────────────────────────────────────────────────────────────── */
+.ytc-logo { text-align: center; margin-bottom: 2rem; }
 .ytc-logo-text {
-    font-size: 3.2rem; font-weight: 900; color: #4F8EF7;
+    font-size: 3rem; font-weight: 900; color: #4F8EF7;
     letter-spacing: -0.03em; line-height: 1;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    text-shadow: 0 0 40px rgba(79,142,247,0.4);
+    text-shadow: 0 0 48px rgba(79,142,247,0.45);
 }
 .ytc-company {
-    font-size: 1.05rem; color: #ffffff; font-weight: 600;
-    margin-top: 0.4rem;
+    font-size: 1.05rem; color: #ffffff; font-weight: 700;
+    margin-top: 0.45rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 .ytc-subtitle {
-    font-size: 0.72rem; color: #4a5568; font-weight: 500;
-    margin-top: 0.2rem; letter-spacing: 0.12em; text-transform: uppercase;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-/* ── Section headings inside login ─────────────────────────────────────── */
-.login-section-title {
-    text-align: center; color: #94a3b8; font-size: 0.8rem;
-    font-weight: 500; margin-bottom: 1.25rem; letter-spacing: 0.02em;
+    font-size: 0.7rem; color: #8892A4; font-weight: 500;
+    margin-top: 0.2rem; letter-spacing: 0.13em; text-transform: uppercase;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ── Divider ──────────────────────────────────────────────────────────── */
 .login-divider {
-    display: flex; align-items: center; gap: 0.75rem; margin: 1.1rem 0;
+    display: flex; align-items: center; gap: 0.75rem;
+    margin: 1rem 0;
 }
 .login-divider::before, .login-divider::after {
-    content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07);
+    content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08);
 }
 .login-divider span {
-    color: #4a5568; font-size: 0.74rem; font-weight: 500;
+    color: #4a5568; font-size: 0.73rem; font-weight: 500;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ── Error / info messages ────────────────────────────────────────────── */
+/* ── Error box ─────────────────────────────────────────────────────────── */
 .login-error {
-    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
-    border-radius: 8px; padding: 0.6rem 0.85rem; color: #f87171;
-    font-size: 0.84rem; margin: 0.5rem 0;
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.28);
+    border-radius: 8px; padding: 0.65rem 0.9rem; color: #f87171;
+    font-size: 0.84rem; margin: 0.6rem 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
+.signup-error {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.28);
+    border-radius: 8px; padding: 0.65rem 0.9rem; color: #f87171;
+    font-size: 0.84rem; margin: 0.6rem 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.signup-success {
+    background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.28);
+    border-radius: 8px; padding: 0.65rem 0.9rem; color: #34d399;
+    font-size: 0.84rem; margin: 0.6rem 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Forgot password / bottom links ───────────────────────────────────── */
 .login-forgot {
-    text-align: right; margin-top: 0.2rem; margin-bottom: 0.75rem;
+    text-align: right; margin-top: 0.15rem; margin-bottom: 0.7rem;
 }
 .login-forgot a {
-    color: #4a5568; font-size: 0.77rem; text-decoration: none;
+    color: #4a5568; font-size: 0.76rem; text-decoration: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: color 0.15s;
 }
 .login-forgot a:hover { color: #4F8EF7; }
 .login-bottom {
-    text-align: center; color: #4a5568; font-size: 0.82rem; margin-top: 1.1rem;
+    text-align: center; color: #4a5568; font-size: 0.82rem;
+    margin-top: 1.1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.login-bottom-link { color: #4F8EF7; font-weight: 600; cursor: pointer; }
+
+/* ── Password strength bar ─────────────────────────────────────────────── */
+.pw-strength-wrap { margin-top: -0.3rem; margin-bottom: 0.6rem; }
+.pw-strength-bar {
+    height: 3px; border-radius: 3px; transition: width 0.3s ease;
+}
+.pw-strength-label {
+    font-size: 0.72rem; margin-top: 0.15rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ── Override ALL inputs on login page ────────────────────────────────── */
+/* ── ALL text inputs ───────────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input {
-    background: #111827 !important;
-    border: 1px solid rgba(255,255,255,0.09) !important;
+    background: #1E2533 !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
     border-radius: 10px !important;
     color: #f1f5f9 !important;
     font-size: 14.5px !important;
     padding: 0.7rem 0.9rem !important;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-div[data-testid="stTextInput"] input::placeholder { color: rgba(255,255,255,0.2) !important; }
+div[data-testid="stTextInput"] input::placeholder { color: rgba(255,255,255,0.22) !important; }
 div[data-testid="stTextInput"] input:focus {
     border-color: #4F8EF7 !important;
-    box-shadow: 0 0 0 3px rgba(79,142,247,0.15) !important;
+    box-shadow: 0 0 0 3px rgba(79,142,247,0.14) !important;
     outline: none !important;
 }
 div[data-testid="stTextInput"] > div { border: none !important; background: transparent !important; }
-div[data-testid="stTextInput"] label { color: transparent !important; height: 0 !important; margin: 0 !important; }
+div[data-testid="stTextInput"] label { display: none !important; }
 
-/* ── Checkbox (show password) ─────────────────────────────────────────── */
-div[data-testid="stCheckbox"] { margin-top: -0.4rem; margin-bottom: 0.5rem; }
-div[data-testid="stCheckbox"] label p { color: #4a5568 !important; font-size: 0.78rem !important; }
+/* ── Checkbox (show/hide password) ────────────────────────────────────── */
+div[data-testid="stCheckbox"] { margin-top: -0.5rem; margin-bottom: 0.4rem; }
+div[data-testid="stCheckbox"] label p { color: #4a5568 !important; font-size: 0.77rem !important; }
 
-/* ── Primary button (Sign In / Create Account) ─────────────────────────── */
+/* ── Primary button: Sign In / Create Account ──────────────────────────── */
 div.stButton > button[kind="primary"] {
     background: linear-gradient(135deg, #4F8EF7 0%, #7B5CF7 100%) !important;
     border: none !important;
@@ -1926,43 +2213,48 @@ div.stButton > button[kind="primary"] {
     font-size: 15px !important;
     height: 48px !important;
     letter-spacing: 0.02em;
-    box-shadow: 0 4px 20px rgba(79,142,247,0.3) !important;
-    transition: opacity 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 20px rgba(79,142,247,0.32) !important;
 }
 div.stButton > button[kind="primary"]:hover {
-    opacity: 0.92 !important;
-    box-shadow: 0 6px 28px rgba(79,142,247,0.45) !important;
+    opacity: 0.91 !important;
+    box-shadow: 0 6px 28px rgba(79,142,247,0.48) !important;
 }
 
-/* ── Secondary buttons (social login, links) ───────────────────────────── */
+/* ── Secondary buttons (link-style: Sign up / Sign in links) ───────────── */
 div.stButton > button[kind="secondary"] {
     background: transparent !important;
     border: none !important;
     color: #4F8EF7 !important;
     font-size: 0.83rem !important;
-    padding: 0.1rem 0 !important;
+    font-weight: 600 !important;
+    padding: 0 !important;
     height: auto !important;
-    font-weight: 500 !important;
+    min-height: 0 !important;
 }
 
-/* ── Social login buttons (Google & Apple) ─────────────────────────────── */
-.social-btn div.stButton > button {
-    background: #161d30 !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+/* ── Google button — white background, grey border ─────────────────────── */
+:has(> [data-testid="stButton"] > button[key="google_btn"]) div.stButton > button,
+div[data-testid="column"]:first-child div.stButton > button:not([kind="primary"]):not([kind="secondary"]) {
+    background: #ffffff !important;
+    border: 1px solid #dadce0 !important;
     border-radius: 10px !important;
-    color: #e2e8f0 !important;
+    color: #3c4043 !important;
     font-weight: 500 !important;
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     height: 46px !important;
-    letter-spacing: 0.01em;
-    transition: border-color 0.15s ease, background 0.15s ease;
 }
-.social-btn div.stButton > button:hover {
-    background: #1d2640 !important;
-    border-color: rgba(255,255,255,0.18) !important;
+/* ── Apple button — black background, white text ───────────────────────── */
+div[data-testid="column"]:last-child div.stButton > button:not([kind="primary"]):not([kind="secondary"]) {
+    background: #050505 !important;
+    border: 1px solid #111 !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    font-size: 13.5px !important;
+    height: 46px !important;
 }
 
-/* ── User badge (fixed top-right when logged in) ───────────────────────── */
+/* ── User badge (top-right, shown when logged in) ─────────────────────── */
 .user-top-badge {
     position: fixed; top: 0.7rem; right: 1rem; z-index: 9999;
     background: rgba(79,142,247,0.1);
@@ -1976,18 +2268,35 @@ div.stButton > button[kind="secondary"] {
 """
 
 
+def _pw_strength(password: str) -> tuple[int, str, str]:
+    """Return (score 0-4, label, bar-color) for a password."""
+    if not password:
+        return 0, "", "#374151"
+    score = 0
+    if len(password) >= 8:
+        score += 1
+    if any(c.isupper() for c in password):
+        score += 1
+    if any(c.isdigit() for c in password):
+        score += 1
+    if any(c in "!@#$%^&*()_+-=[]{}|;':\",./<>?" for c in password):
+        score += 1
+    labels = ["", "Weak", "Fair", "Good", "Strong"]
+    colors = ["#374151", "#ef4444", "#f59e0b", "#3b82f6", "#10b981"]
+    return score, labels[score], colors[score]
+
+
 def _render_login_page():
-    """Full-screen corporate login page rendered before the main app."""
+    """Full-screen corporate login page — appears before the main app loads."""
     st.markdown(_LOGIN_CSS, unsafe_allow_html=True)
 
-    # Credentials
     DEMO_EMAIL    = "demo@yourtaxcoach.com"
     DEMO_PASSWORD = "TaxCoach2025"
 
     view = st.session_state.get("login_view", "signin")
 
-    # Center the card using columns
-    _, center, _ = st.columns([1, 1.55, 1])
+    # Three columns: narrow | card | narrow
+    _, center, _ = st.columns([1, 1.35, 1])
 
     with center:
         # ── Logo ─────────────────────────────────────────────────────────
@@ -1999,89 +2308,202 @@ def _render_login_page():
         </div>
         """, unsafe_allow_html=True)
 
-        # ─────────────────────────────────────────────────────────────────
-        if view == "signin":
-            st.markdown('<p class="login-section-title">Sign in to your account</p>', unsafe_allow_html=True)
+        with st.container(border=True):
 
-            # Social login buttons
-            g_col, a_col = st.columns(2, gap="small")
-            with g_col:
-                st.markdown('<div class="social-btn">', unsafe_allow_html=True)
-                if st.button("🔵  Continue with Google", use_container_width=True, key="google_btn"):
-                    st.toast("Coming soon — Google OAuth is planned!", icon="ℹ️")
-                st.markdown('</div>', unsafe_allow_html=True)
-            with a_col:
-                st.markdown('<div class="social-btn">', unsafe_allow_html=True)
-                if st.button("🍎  Continue with Apple", use_container_width=True, key="apple_btn"):
-                    st.toast("Coming soon — Apple OAuth is planned!", icon="ℹ️")
-                st.markdown('</div>', unsafe_allow_html=True)
+            # ══════════════════════════════════════════════════════════════
+            if view == "signin":
 
-            st.markdown('<div class="login-divider"><span>or</span></div>', unsafe_allow_html=True)
+                # Social login buttons
+                g_col, a_col = st.columns(2, gap="small")
+                with g_col:
+                    if st.button("G   Continue with Google",
+                                 use_container_width=True, key="google_btn"):
+                        st.toast(
+                            "Coming Soon — Google login launching next week!",
+                            icon="ℹ️",
+                        )
+                with a_col:
+                    if st.button("🍎  Continue with Apple",
+                                 use_container_width=True, key="apple_btn"):
+                        st.toast(
+                            "Coming Soon — Google login launching next week!",
+                            icon="ℹ️",
+                        )
 
-            # Email field
-            email = st.text_input("email", placeholder="Work email address",
-                                  key="login_email", label_visibility="collapsed")
-
-            # Password field with show/hide
-            show_pw = st.checkbox("👁  Show password", key="login_show_pw")
-            pw_type = "default" if show_pw else "password"
-            password = st.text_input("password", placeholder="Password",
-                                     type=pw_type, key=f"login_pw_{show_pw}",
-                                     label_visibility="collapsed")
-
-            # Forgot password
-            st.markdown('<div class="login-forgot"><a href="#">Forgot password?</a></div>',
-                        unsafe_allow_html=True)
-
-            # Error message
-            if st.session_state.get("login_error"):
                 st.markdown(
-                    '<div class="login-error">❌ Invalid email or password. Please try again.</div>',
+                    '<div class="login-divider"><span>or</span></div>',
                     unsafe_allow_html=True,
                 )
 
-            # Sign In button
-            if st.button("Sign In", type="primary", use_container_width=True, key="signin_btn"):
-                if email.strip() == DEMO_EMAIL and password == DEMO_PASSWORD:
-                    st.session_state["authenticated"] = True
-                    st.session_state["user_name"]     = "Demo User"
-                    st.session_state["user_email"]    = email.strip()
-                    st.session_state["login_error"]   = False
+                email = st.text_input(
+                    "e", placeholder="Work email address",
+                    key="login_email", label_visibility="collapsed",
+                )
+
+                show_pw = st.checkbox("👁  Show password", key="login_show_pw")
+                password = st.text_input(
+                    "p", placeholder="Password",
+                    type="default" if show_pw else "password",
+                    key=f"login_pw_{show_pw}",
+                    label_visibility="collapsed",
+                )
+
+                st.markdown(
+                    '<div class="login-forgot"><a href="#">Forgot password?</a></div>',
+                    unsafe_allow_html=True,
+                )
+
+                if st.session_state.get("login_error"):
+                    st.markdown(
+                        '<div class="login-error">'
+                        "❌ Invalid email or password. Please try again."
+                        "</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                if st.button("Sign In", type="primary",
+                             use_container_width=True, key="signin_btn"):
+                    # Demo account — always works
+                    if email.strip() == DEMO_EMAIL and password == DEMO_PASSWORD:
+                        st.session_state.update({
+                            "authenticated": True,
+                            "user_name":     "Demo User",
+                            "user_email":    email.strip(),
+                            "login_error":   False,
+                        })
+                        st.rerun()
+                    else:
+                        # Try Supabase
+                        try:
+                            from supabase_config import login_user, is_configured
+                            if is_configured():
+                                result = login_user(email.strip(), password)
+                                if result["success"]:
+                                    u = result["user"]
+                                    st.session_state.update({
+                                        "authenticated": True,
+                                        "user_name":     u["full_name"],
+                                        "user_email":    u["email"],
+                                        "login_error":   False,
+                                    })
+                                    st.rerun()
+                                else:
+                                    st.session_state["login_error"] = True
+                                    st.rerun()
+                            else:
+                                st.session_state["login_error"] = True
+                                st.rerun()
+                        except Exception:
+                            st.session_state["login_error"] = True
+                            st.rerun()
+
+                st.markdown(
+                    '<div class="login-bottom">'
+                    "Don't have an account?&nbsp;"
+                    '<span class="login-bottom-link">Sign Up</span>'
+                    "</div>",
+                    unsafe_allow_html=True,
+                )
+                if st.button("Sign Up →", key="go_signup"):
+                    st.session_state["login_view"]  = "signup"
+                    st.session_state["login_error"] = False
+                    st.session_state.pop("signup_error", None)
                     st.rerun()
-                else:
-                    st.session_state["login_error"] = True
+
+            # ══════════════════════════════════════════════════════════════
+            else:  # signup view
+
+                full_name = st.text_input(
+                    "fn", placeholder="Full Name",
+                    key="signup_name", label_visibility="collapsed",
+                )
+                email_su = st.text_input(
+                    "em", placeholder="Work email address",
+                    key="signup_email", label_visibility="collapsed",
+                )
+                password_su = st.text_input(
+                    "pw", placeholder="Password (min 8 characters)",
+                    type="password", key="signup_pw",
+                    label_visibility="collapsed",
+                )
+
+                # Password strength indicator
+                if password_su:
+                    score, label, color = _pw_strength(password_su)
+                    pct = score * 25
+                    st.markdown(
+                        f"""<div class="pw-strength-wrap">
+                            <div style="background:#1e2533;border-radius:3px;height:3px;">
+                                <div class="pw-strength-bar"
+                                     style="width:{pct}%;background:{color};"></div>
+                            </div>
+                            <div class="pw-strength-label" style="color:{color};">
+                                {label}
+                            </div>
+                        </div>""",
+                        unsafe_allow_html=True,
+                    )
+
+                company = st.text_input(
+                    "co", placeholder="Company Name",
+                    key="signup_company", label_visibility="collapsed",
+                )
+
+                if st.session_state.get("signup_error"):
+                    st.markdown(
+                        f'<div class="signup-error">❌ {st.session_state["signup_error"]}</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                if st.button("Create Account", type="primary",
+                             use_container_width=True, key="create_btn"):
+                    if not all([full_name, email_su, password_su, company]):
+                        st.session_state["signup_error"] = "Please fill in all fields."
+                        st.rerun()
+                    elif len(password_su) < 8:
+                        st.session_state["signup_error"] = "Password must be at least 8 characters."
+                        st.rerun()
+                    else:
+                        try:
+                            from supabase_config import register_user, is_configured
+                            if is_configured():
+                                result = register_user(
+                                    full_name.strip(), email_su.strip(),
+                                    password_su, company.strip(),
+                                )
+                                if result["success"]:
+                                    st.session_state.update({
+                                        "authenticated": True,
+                                        "user_name":     full_name.strip(),
+                                        "user_email":    email_su.strip(),
+                                        "login_error":   False,
+                                    })
+                                    st.session_state.pop("signup_error", None)
+                                    st.rerun()
+                                else:
+                                    st.session_state["signup_error"] = result["error"]
+                                    st.rerun()
+                            else:
+                                st.session_state["signup_error"] = (
+                                    "Supabase is not configured. "
+                                    "Add SUPABASE_URL and SUPABASE_ANON_KEY to your .env file."
+                                )
+                                st.rerun()
+                        except Exception as exc:
+                            st.session_state["signup_error"] = f"Registration error: {exc}"
+                            st.rerun()
+
+                st.markdown(
+                    '<div class="login-bottom">'
+                    "Already have an account?&nbsp;"
+                    '<span class="login-bottom-link">Sign In</span>'
+                    "</div>",
+                    unsafe_allow_html=True,
+                )
+                if st.button("← Sign In", key="go_signin"):
+                    st.session_state["login_view"] = "signin"
+                    st.session_state.pop("signup_error", None)
                     st.rerun()
-
-            # Switch to sign up
-            st.markdown('<div class="login-bottom">Don\'t have an account?</div>',
-                        unsafe_allow_html=True)
-            if st.button("Sign up →", key="go_signup", use_container_width=False):
-                st.session_state["login_view"]  = "signup"
-                st.session_state["login_error"] = False
-                st.rerun()
-
-        # ─────────────────────────────────────────────────────────────────
-        else:  # signup view
-            st.markdown('<p class="login-section-title">Create your account</p>', unsafe_allow_html=True)
-
-            st.text_input("fn", placeholder="Full name",
-                          key="signup_name", label_visibility="collapsed")
-            st.text_input("em", placeholder="Work email address",
-                          key="signup_email", label_visibility="collapsed")
-            st.text_input("pw", placeholder="Password",
-                          type="password", key="signup_pw", label_visibility="collapsed")
-            st.text_input("co", placeholder="Company name",
-                          key="signup_company", label_visibility="collapsed")
-
-            if st.button("Create Account", type="primary", use_container_width=True, key="create_btn"):
-                st.toast("Account creation is coming soon! Use the demo account to explore.", icon="ℹ️")
-
-            st.markdown('<div class="login-bottom">Already have an account?</div>',
-                        unsafe_allow_html=True)
-            if st.button("← Sign in", key="go_signin", use_container_width=False):
-                st.session_state["login_view"]  = "signin"
-                st.session_state["login_error"] = False
-                st.rerun()
 
 
 def _render_client_dashboard_tab():
