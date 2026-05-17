@@ -44,49 +44,49 @@ NO_PROOF_ANSWERS = {NO_ANSWER_MESSAGE, NO_EVIDENCE_MESSAGE, UNKNOWN_MESSAGE}
 FEATURE_CARDS = [
     {
         "title": "Internal AI Brain",
-        "description": "Search SOPs, client notes, and strategy guides with proof-backed answers.",
+        "description": "Retrieve suggested answers from uploaded SOPs, strategy guides, and client documents — grounded in source material to reduce hallucination risk.",
         "input": "PDF, TXT, or CSV knowledge documents",
-        "output": "Answer, source citation, and proof snippet",
+        "output": "Suggested answer, source citation, and supporting excerpt",
         "icon": "🧠",
         "accent": "#6366f1",
     },
     {
         "title": "Bookkeeping Copilot",
-        "description": "Review bookkeeping exports and surface rows that need manual attention.",
+        "description": "Surface transactions that need attention and suggest categories for bookkeeper review — outputs are review-ready, not import-ready.",
         "input": "Transaction CSV files",
-        "output": "Review summary, flagged rows, and cleaned CSV",
+        "output": "Review summary, flagged rows, and review-ready CSV export",
         "icon": "📊",
         "accent": "#0ea5e9",
     },
     {
         "title": "Client Communication",
-        "description": "Turn internal notes into client-ready summaries, action items, and email drafts.",
+        "description": "Draft client-facing summaries, action items, and email templates from internal notes — for advisor review before sending.",
         "input": "Client notes, financial summaries, and strategy docs",
-        "output": "Summary, issues, recommendations, and email draft",
+        "output": "Draft summary, issues, recommendations, and email draft for advisor review",
         "icon": "💬",
         "accent": "#10b981",
     },
     {
         "title": "Strategy Content Studio",
-        "description": "Convert internal tax strategy notes into polished outward-facing content.",
+        "description": "Convert internal strategy notes into draft client-friendly content — review for accuracy and alignment before publishing.",
         "input": "Strategy notes or internal tax guidance",
-        "output": "Explainer, newsletter, social post, or email",
+        "output": "Draft explainer, newsletter, social post, or email — for review before publishing",
         "icon": "✍️",
         "accent": "#f59e0b",
     },
     {
         "title": "Automations",
-        "description": "Pre-built workflow triggers that connect document intake, bookkeeping, and client communication.",
+        "description": "Workflow blueprints showing how document intake, bookkeeping, and client communication can be connected after process validation.",
         "input": "Trigger events and connected systems",
-        "output": "Automated actions and notifications",
+        "output": "Workflow blueprint and integration roadmap",
         "icon": "⚡",
         "accent": "#ef4444",
     },
     {
         "title": "Client Dashboard",
-        "description": "Track income, expenses, savings, and financial health for any client with charts and insights.",
+        "description": "Track income, expenses, and financial health with directional insights for advisor review and client discussion.",
         "input": "Transaction CSV (type, amount, category, date)",
-        "output": "Metrics, charts, insights, and export",
+        "output": "Directional metrics, charts, and review-ready export",
         "icon": "📈",
         "accent": "#0891b2",
     },
@@ -99,12 +99,12 @@ INTERNAL_BRAIN_EXAMPLES = [
     "Summarize the bookkeeping risks in this file.",
 ]
 SAMPLE_QUESTIONS = [
-    "What is the client onboarding process?",
+    "What is the onboarding process for a new client?",
+    "What documents are needed before a strategy session?",
+    "Summarize the bookkeeping cleanup SOP.",
+    "What should the team do if client documents are missing?",
+    "What strategy applies when profits exceed $100,000?",
     "How should uncategorized transactions be handled?",
-    "What issues does this client have?",
-    "What strategy applies to this client?",
-    "Summarize the financial risks in this note.",
-    "Does this client have missing transaction categories?",
 ]
 STRATEGY_OUTPUT_OPTIONS = [
     "client email draft",
@@ -160,6 +160,12 @@ def _initialize_session_state():
         "client_explanation_output": "",
         "strategy_output_text": "",
         "strategy_output_label": "",
+        # ── Prototype usage KPIs ──────────────────────────────────────────
+        "kpi_questions_asked": 0,
+        "kpi_transactions_analyzed": 0,
+        "kpi_issues_flagged": 0,
+        "kpi_drafts_generated": 0,
+        "kpi_content_pieces": 0,
     }
 
     for key, value in defaults.items():
@@ -757,6 +763,300 @@ def _apply_page_style():
         .module-meta { color: #8892A4; font-size: 0.8rem; line-height: 1.45; }
         .workspace-actions-note { color: #8892A4; font-size: 0.8rem; margin-top: 0.15rem; }
 
+        /* ════════════════════════════════════════════════════════════════
+           BUSINESS IMPACT & VALUE FRAMING COMPONENTS
+        ════════════════════════════════════════════════════════════════ */
+        .why-matters {
+            background: rgba(79,142,247,0.04); border: 1px solid rgba(79,142,247,0.12);
+            border-left: 3px solid #4F8EF7; border-radius: 0 8px 8px 0;
+            padding: 1rem 1.25rem; margin-bottom: 1rem;
+        }
+        .why-matters-title {
+            font-size: 0.68rem; font-weight: 700; color: #4F8EF7;
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem;
+        }
+        .why-matters-text { font-size: 0.84rem; color: #8892A4; line-height: 1.65; }
+
+        .impact-grid-3 {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 0.65rem; margin-bottom: 1rem;
+        }
+        .impact-card {
+            background: #161B27; border: 1px solid #232D3F;
+            border-radius: 8px; padding: 0.95rem 1.05rem;
+            display: flex; flex-direction: column;
+        }
+        .impact-icon { font-size: 1.1rem; margin-bottom: 0.35rem; }
+        .impact-title {
+            font-size: 0.82rem; font-weight: 600; color: #F0F4F8; margin-bottom: 0.3rem;
+        }
+        .impact-desc { font-size: 0.75rem; color: #8892A4; line-height: 1.55; margin-bottom: 0.55rem; flex: 1; }
+        .impact-metric {
+            font-size: 0.63rem; font-weight: 700; color: #4F8EF7;
+            text-transform: uppercase; letter-spacing: 0.07em;
+            background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.15);
+            border-radius: 4px; padding: 0.15rem 0.45rem; display: inline-block;
+        }
+
+        .ba-wrap { margin: 0.5rem 0 0.75rem; }
+        .ba-row {
+            display: grid; grid-template-columns: 80px 1fr;
+            gap: 0; border: 1px solid #232D3F; border-radius: 6px; overflow: hidden;
+            margin-bottom: 0.35rem;
+        }
+        .ba-label {
+            font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 0.55rem 0.7rem; background: #1C2333; display: flex; align-items: center;
+        }
+        .ba-before-lbl { color: #F59E0B; }
+        .ba-after-lbl  { color: #10B981; }
+        .ba-text {
+            font-size: 0.78rem; color: #8892A4; line-height: 1.5;
+            padding: 0.55rem 0.9rem; background: #161B27;
+        }
+
+        .measured-by { margin: 0.4rem 0 0.6rem; }
+        .measured-by-title {
+            font-size: 0.66rem; font-weight: 700; color: #556070;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem;
+        }
+        .measured-by-item {
+            font-size: 0.77rem; color: #8892A4; line-height: 1.55;
+            padding: 0.2rem 0 0.2rem 0.8rem; border-left: 2px solid #232D3F;
+            margin-bottom: 0.2rem;
+        }
+
+        .vmap-wrap { overflow-x: auto; }
+        .vmap-table { width: 100%; border-collapse: collapse; }
+        .vmap-table th {
+            font-size: 0.64rem; font-weight: 700; color: #556070;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            padding: 0.5rem 0.85rem; background: #1C2333; border: 1px solid #232D3F; text-align: left;
+        }
+        .vmap-table td {
+            font-size: 0.78rem; color: #8892A4; line-height: 1.5;
+            padding: 0.6rem 0.85rem; border: 1px solid #232D3F; vertical-align: top;
+        }
+        .vmap-table td:first-child { color: #F0F4F8; font-weight: 500; font-size: 0.8rem; }
+        .vmap-table td:nth-child(2) { color: #4F8EF7; font-size: 0.75rem; }
+        .vmap-table tr:hover td { background: rgba(79,142,247,0.025); }
+
+        .kpi-section-title {
+            font-size: 0.64rem; font-weight: 700; color: #556070;
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem;
+        }
+        .kpi-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.28rem 0; border-bottom: 1px solid #1A2232; font-size: 0.75rem;
+        }
+        .kpi-lbl { color: #8892A4; }
+        .kpi-val { color: #F0F4F8; font-weight: 600; }
+
+        .module-impact-copy {
+            font-size: 0.8rem; color: #8892A4; line-height: 1.65;
+            margin-bottom: 0.75rem; padding: 0.7rem 0.9rem;
+            background: rgba(79,142,247,0.03); border: 1px solid rgba(79,142,247,0.08);
+            border-radius: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .impact-grid-3 { grid-template-columns: 1fr 1fr; }
+            .roadmap-grid  { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ════════════════════════════════════════════════════════════════
+           PRODUCTION HARDENING ROADMAP
+        ════════════════════════════════════════════════════════════════ */
+        .roadmap-intro-copy {
+            font-size: 0.8rem; color: #8892A4; line-height: 1.7;
+            margin-bottom: 0.85rem; padding: 0.75rem 1rem;
+            background: rgba(79,142,247,0.03); border: 1px solid rgba(79,142,247,0.1);
+            border-radius: 8px;
+        }
+        .roadmap-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 0.7rem; margin: 0.75rem 0 0.5rem;
+        }
+        .roadmap-card {
+            background: #161B27; border: 1px solid #232D3F; border-radius: 10px;
+            padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.4rem;
+        }
+        .roadmap-card-header {
+            display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.1rem;
+        }
+        .roadmap-card-icon { font-size: 1.1rem; }
+        .roadmap-card-title {
+            font-size: 0.82rem; font-weight: 700; color: #F0F4F8;
+        }
+        .roadmap-chip {
+            display: inline-block; padding: 0.13rem 0.55rem; border-radius: 20px;
+            font-size: 0.59rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; width: fit-content;
+        }
+        .chip-next {
+            background: rgba(245,158,11,0.1); color: #F59E0B;
+            border: 1px solid rgba(245,158,11,0.22);
+        }
+        .chip-production {
+            background: rgba(16,185,129,0.08); color: #10B981;
+            border: 1px solid rgba(16,185,129,0.2);
+        }
+        .roadmap-card-desc {
+            font-size: 0.75rem; color: #8892A4; line-height: 1.6; margin-top: 0.15rem;
+        }
+        .roadmap-bullet {
+            font-size: 0.72rem; color: #6B7585; padding: 0.1rem 0 0.1rem 0.6rem;
+            border-left: 2px solid #232D3F; margin-bottom: 0.08rem; line-height: 1.5;
+        }
+        .roadmap-section-title {
+            font-size: 0.64rem; font-weight: 700; color: #556070;
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem;
+        }
+        /* Prototype → Production table */
+        .proto-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .proto-table th {
+            background: #161B27; color: #4F8EF7;
+            font-size: 0.63rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.09em; padding: 0.5rem 0.75rem;
+            border: 1px solid #232D3F; text-align: left;
+        }
+        .proto-table td {
+            padding: 0.42rem 0.75rem; border: 1px solid #1A2232;
+            color: #8892A4; line-height: 1.55;
+        }
+        .proto-table td:first-child { color: #F0F4F8; font-weight: 500; }
+        .proto-table td:nth-child(2) { color: #4F8EF7; }
+        .proto-table tr:hover td { background: rgba(79,142,247,0.02); }
+        /* 90-day plan phases */
+        .plan-phase {
+            background: #161B27; border: 1px solid #232D3F; border-radius: 8px;
+            padding: 0.9rem 1rem; margin-bottom: 0.5rem;
+        }
+        .plan-phase-label {
+            font-size: 0.62rem; font-weight: 700; color: #4F8EF7;
+            text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 0.2rem;
+        }
+        .plan-phase-header {
+            font-size: 0.82rem; font-weight: 700; color: #F0F4F8; margin-bottom: 0.45rem;
+        }
+        .plan-bullet {
+            font-size: 0.74rem; color: #8892A4; padding: 0.1rem 0 0.1rem 0.6rem;
+            border-left: 2px solid #232D3F; margin-bottom: 0.12rem; line-height: 1.5;
+        }
+        /* Module next-improvements expander */
+        .next-improvements-card {
+            background: rgba(79,142,247,0.025); border: 1px solid rgba(79,142,247,0.1);
+            border-radius: 8px; padding: 0.85rem 1rem; margin-top: 0.3rem;
+        }
+        .next-imp-copy {
+            font-size: 0.78rem; color: #8892A4; line-height: 1.65; margin-bottom: 0.6rem;
+        }
+        .next-imp-bullet {
+            font-size: 0.73rem; color: #6B7585;
+            border-left: 2px solid rgba(79,142,247,0.18);
+            padding-left: 0.6rem; margin-bottom: 0.14rem; line-height: 1.5;
+        }
+
+        /* ════════════════════════════════════════════════════════════════
+           INTERNAL AI BRAIN — enterprise source-citation UI
+        ════════════════════════════════════════════════════════════════ */
+        .brain-source-badge {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.2rem 0.6rem;
+            background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.18);
+            border-radius: 4px; color: #4F8EF7;
+            font-size: 0.66rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;
+        }
+        .brain-helper-line {
+            color: #556070; font-size: 0.76rem; margin-bottom: 0.85rem; line-height: 1.5;
+        }
+        .brain-trust-panel {
+            background: rgba(255,255,255,0.015); border: 1px solid #232D3F;
+            border-radius: 8px; padding: 0.8rem 1rem; margin: 0.85rem 0;
+        }
+        .trust-row {
+            display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem;
+        }
+        .trust-row:last-child { margin-bottom: 0; }
+        .trust-lbl {
+            font-size: 0.66rem; font-weight: 700; color: #556070;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            min-width: 120px; flex-shrink: 0;
+        }
+        .trust-val { font-size: 0.82rem; font-weight: 600; color: #F0F4F8; }
+        .trust-reason { font-size: 0.78rem; color: #8892A4; line-height: 1.5; }
+        .conf-high   { color: #10B981; }
+        .conf-medium { color: #F59E0B; }
+        .conf-low    { color: #EF4444; }
+        .review-yes  { color: #F59E0B; }
+        .review-no   { color: #10B981; }
+        .brain-sources-header {
+            font-size: 0.66rem; font-weight: 700; color: #556070;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            margin: 1.1rem 0 0.55rem; border-top: 1px solid #232D3F; padding-top: 0.9rem;
+        }
+        .brain-src-card {
+            background: #161B27; border: 1px solid #232D3F;
+            border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 0.5rem;
+        }
+        .brain-src-name {
+            font-size: 0.86rem; font-weight: 600; color: #F0F4F8; margin-bottom: 0.3rem;
+        }
+        .brain-src-meta {
+            font-size: 0.73rem; color: #8892A4;
+            display: flex; flex-wrap: wrap; gap: 0.65rem; margin-bottom: 0.45rem;
+        }
+        .brain-src-meta span { white-space: nowrap; }
+        .rel-pill {
+            font-size: 0.68rem; font-weight: 600;
+            padding: 0.12rem 0.45rem; border-radius: 4px;
+        }
+        .rel-high   { background: rgba(16,185,129,0.1); color: #10B981; border: 1px solid rgba(16,185,129,0.2); }
+        .rel-medium { background: rgba(245,158,11,0.1); color: #F59E0B; border: 1px solid rgba(245,158,11,0.2); }
+        .rel-low    { background: rgba(239,68,68,0.1);  color: #EF4444; border: 1px solid rgba(239,68,68,0.2); }
+        .brain-excerpt-label {
+            font-size: 0.64rem; font-weight: 700; color: #556070;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem;
+        }
+        .brain-excerpt-box {
+            background: rgba(0,0,0,0.22); border: 1px solid #1A2232;
+            border-left: 2px solid rgba(79,142,247,0.45);
+            border-radius: 0 6px 6px 0; padding: 0.65rem 0.9rem;
+            font-size: 0.79rem; color: #8892A4; line-height: 1.65;
+            font-style: italic; max-height: 110px; overflow-y: auto;
+        }
+        .brain-excerpt-helper {
+            font-size: 0.66rem; color: #3D4D60; margin-top: 0.3rem;
+        }
+        .brain-followup {
+            background: rgba(79,142,247,0.04); border: 1px solid rgba(79,142,247,0.1);
+            border-radius: 8px; padding: 0.65rem 0.9rem; margin-top: 0.9rem;
+            font-size: 0.78rem; color: #8892A4; line-height: 1.55;
+        }
+        .brain-fallback-box {
+            background: rgba(245,158,11,0.04); border: 1px solid rgba(245,158,11,0.15);
+            border-radius: 10px; padding: 1.2rem 1.4rem; margin-bottom: 0.75rem;
+        }
+        .brain-fallback-title {
+            font-size: 0.92rem; font-weight: 600; color: #F0F4F8; margin-bottom: 0.4rem;
+        }
+        .brain-fallback-sub { font-size: 0.82rem; color: #8892A4; line-height: 1.6; }
+        .brain-fallback-tip {
+            font-size: 0.78rem; color: #556070; margin-top: 0.6rem; padding-top: 0.6rem;
+            border-top: 1px solid rgba(245,158,11,0.12);
+        }
+        .brain-kb-status {
+            background: rgba(16,185,129,0.04); border: 1px solid rgba(16,185,129,0.18);
+            border-radius: 8px; padding: 0.85rem 1rem; margin-top: 0.75rem;
+        }
+        .kb-status-title {
+            font-size: 0.74rem; font-weight: 700; color: #10B981;
+            letter-spacing: 0.04em; margin-bottom: 0.45rem;
+        }
+        .kb-status-row { font-size: 0.76rem; color: #8892A4; margin-bottom: 0.18rem; }
+        .kb-status-row strong { color: #F0F4F8; font-weight: 600; }
+
         /* ── User badge (top-right) ──────────────────────────────────── */
         .user-top-badge {
             position: fixed; top: 0.7rem; right: 1rem; z-index: 9999;
@@ -1083,6 +1383,566 @@ def _render_feature_cards():
     )
 
 
+def _render_business_impact_overview():
+    """Render the Business Impact Overview section on the main dashboard."""
+    st.markdown(
+        '<div class="why-matters">'
+        '<div class="why-matters-title">Why This Matters</div>'
+        '<div class="why-matters-text">'
+        "Your Tax Coach's long-term AI opportunity is not just generating content or answering questions. "
+        "It is turning the firm's knowledge, workflows, and client communication patterns into repeatable systems. "
+        "These tools are designed to support that direction by improving knowledge access, reducing manual review, "
+        "speeding up communication, and making client value more visible."
+        "</div></div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        "<div style='font-size:0.68rem;font-weight:700;color:#556070;text-transform:uppercase;"
+        "letter-spacing:0.1em;margin-bottom:0.55rem'>Business Impact Overview</div>"
+        "<div style='font-size:0.78rem;color:#8892A4;margin-bottom:0.75rem'>"
+        "TaxCopilot is designed to help Your Tax Coach reduce repetitive internal work, improve access to knowledge, "
+        "support bookkeeping review, speed up client communication, and make client value easier to communicate."
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    IMPACT_CARDS = [
+        ("🔍", "Faster Knowledge Access",
+         "Helps team members find SOPs, strategy guidance, and internal documentation without searching folders or interrupting senior staff.",
+         "Example KPI: repeated questions reduced"),
+        ("📊", "Bookkeeping Review Support",
+         "Flags duplicates, unusual transactions, missing categories, and potential cleanup issues before review.",
+         "Example KPI: transactions reviewed per hour"),
+        ("💬", "Client Communication Speed",
+         "Turns internal notes into advisor-reviewed client email drafts and summaries.",
+         "Example KPI: recap drafting time reduced"),
+        ("✍️", "Content Production Scale",
+         "Turns one tax tip or strategy into multi-platform content drafts for social, email, LinkedIn, Reels, and X.",
+         "Example KPI: content pieces drafted per session"),
+        ("📈", "Client Value Visibility",
+         "Helps convert financial activity and tax work into simple dashboard insights clients can understand.",
+         "Example KPI: client recap consistency"),
+        ("⚡", "Workflow Automation Readiness",
+         "Maps repeatable workflows that can later connect to QuickBooks, CRM, client portal, Zapier, Make, or n8n.",
+         "Example KPI: manual handoffs reduced"),
+    ]
+
+    cards_html = "".join(
+        f'<div class="impact-card">'
+        f'<div class="impact-icon">{icon}</div>'
+        f'<div class="impact-title">{title}</div>'
+        f'<div class="impact-desc">{desc}</div>'
+        f'<div class="impact-metric">{metric}</div>'
+        f'</div>'
+        for icon, title, desc, metric in IMPACT_CARDS
+    )
+    st.markdown(f'<div class="impact-grid-3">{cards_html}</div>', unsafe_allow_html=True)
+
+    with st.expander("📋 How This Maps to Your Tax Coach's Role Priorities"):
+        st.markdown(
+            '<div class="vmap-wrap"><table class="vmap-table">'
+            "<thead><tr>"
+            "<th>Job Priority</th><th>Related Module</th><th>Business Value</th>"
+            "</tr></thead>"
+            "<tbody>"
+            "<tr><td>Internal AI Brain</td><td>TaxCopilot — Internal AI Brain</td>"
+            "<td>Faster SOP and strategy retrieval with source-based, cited answers</td></tr>"
+            "<tr><td>Bookkeeping Automation</td><td>TaxCopilot — Bookkeeping Copilot</td>"
+            "<td>Flags cleanup issues and suggests categories for bookkeeper review before import</td></tr>"
+            "<tr><td>Client Experience</td><td>TaxCopilot — Client Communication + Dashboard</td>"
+            "<td>Creates clearer client recaps and makes financial progress visible</td></tr>"
+            "<tr><td>Content & Messaging</td><td>Strategy Content Studio + Marketing Engine</td>"
+            "<td>Turns tax ideas into client-friendly content drafts across multiple channels</td></tr>"
+            "<tr><td>Workflow Automation</td><td>TaxCopilot — Automations</td>"
+            "<td>Maps repeatable workflows for future n8n / Zapier / Make / API integrations</td></tr>"
+            "<tr><td>Scalability</td><td>All modules</td>"
+            "<td>Reduces repeated manual work and creates reusable internal systems</td></tr>"
+            "</tbody></table></div>",
+            unsafe_allow_html=True,
+        )
+
+
+_MODULE_IMPACT = {
+    "brain": {
+        "copy": (
+            "This module is designed to reduce time spent searching internal documentation and asking repeat questions. "
+            "Newer team members can retrieve SOP-based answers faster, while senior staff spend less time "
+            "answering the same operational questions."
+        ),
+        "measured": [
+            "Number of questions answered by the AI Brain",
+            "Reduction in repeated team questions over time",
+            "Time to find SOP or strategy guidance",
+            "Documentation gaps discovered through unanswered questions",
+            "Team feedback on answer usefulness",
+        ],
+        "before": "Team searches folders or asks senior staff for process answers.",
+        "after": "Team asks the Internal AI Brain and receives a source-based answer with the relevant document excerpt.",
+    },
+    "bookkeeping": {
+        "copy": (
+            "This module is designed to reduce manual transaction cleanup by pre-flagging duplicates, "
+            "unusual amounts, missing categories, and likely categorization issues before bookkeeper review."
+        ),
+        "measured": [
+            "Transactions reviewed per hour",
+            "Number of duplicates flagged",
+            "Number of missing categories detected",
+            "Percentage of transactions requiring manual review",
+            "Bookkeeper approval rate for suggested categories",
+        ],
+        "before": "Bookkeeper manually scans every row for duplicates, missing categories, and unusual transactions.",
+        "after": "AI highlights likely issues first, suggests categories, and lets the bookkeeper focus on exceptions.",
+    },
+    "communication": {
+        "copy": (
+            "This module helps convert internal meeting notes and strategy notes into clear client-facing drafts, "
+            "reducing writing time and improving consistency across client communication."
+        ),
+        "measured": [
+            "Drafts generated per session",
+            "Average recap drafting time",
+            "Advisor edit rate before sending",
+            "Client action items captured",
+            "Consistency of recap structure",
+        ],
+        "before": "Advisor starts from a blank page after a meeting.",
+        "after": "Advisor reviews an AI-generated structured draft with summary, recommendations, and action items.",
+    },
+    "strategy": {
+        "copy": (
+            "This module helps turn internal tax strategies into clear client education assets, "
+            "improving the firm's ability to explain complex topics in simple language."
+        ),
+        "measured": [
+            "Content drafts generated",
+            "Number of formats created from one strategy note",
+            "Review edits required before approval",
+            "Approved content pieces",
+            "Content turnaround time",
+        ],
+        "before": "Team manually rewrites each tax idea for every channel or format.",
+        "after": "AI creates draft explainers, reports, newsletters, or emails from one approved strategy note.",
+    },
+    "automations": {
+        "copy": (
+            "This module maps repeatable workflows that can later be connected through n8n, Zapier, Make, "
+            "APIs, QuickBooks, CRM, and client portal tools."
+        ),
+        "measured": [
+            "Manual handoffs reduced",
+            "Steps mapped for automation",
+            "Workflow errors potentially reduced",
+            "Time from trigger to completed task",
+            "Number of processes documented",
+        ],
+        "before": "Team manually moves information between systems.",
+        "after": "Validated workflows trigger the next step automatically after team approval.",
+    },
+    "dashboard": {
+        "copy": (
+            "This module helps make client value visible by turning transaction data into simple financial "
+            "summaries, directional insights, and client-friendly dashboard views."
+        ),
+        "measured": [
+            "Dashboards generated",
+            "Client summaries created",
+            "Categories flagged for review",
+            "Advisor-approved insights",
+            "Client-facing recap consistency",
+        ],
+        "before": "Financial progress and advisory value may be hidden inside spreadsheets or internal notes.",
+        "after": "Client-facing dashboards show income, expenses, savings, trends, and discussion points in a clear format.",
+    },
+}
+
+_MODULE_ROADMAP = {
+    "brain": {
+        "copy": (
+            "The current version demonstrates source-based internal search. "
+            "The next step is to make it production-ready with document governance, role-based access, "
+            "stronger retrieval evaluation, and feedback loops so the knowledge base improves over time."
+        ),
+        "items": [
+            "Add admin document approval before indexing",
+            "Add document version control",
+            "Add stronger metadata: document owner, department, upload date, review date",
+            "Add golden question test set for common SOP questions",
+            "Add retrieval evaluation dashboard",
+            "Add 'I don't know' threshold tuning",
+            "Add feedback loop for helpful / not helpful answers",
+            "Add role-based access to sensitive documents",
+            "Add audit logs for user queries and source documents used",
+        ],
+    },
+    "bookkeeping": {
+        "copy": (
+            "The current version flags likely issues and suggests categories from CSV uploads. "
+            "The next step is to connect it to the firm's chart of accounts, add approval workflows, "
+            "and integrate with QuickBooks Online after the process is validated."
+        ),
+        "items": [
+            "QuickBooks Online API integration",
+            "Human approval queue before export/import",
+            "Confidence threshold settings",
+            "Vendor rule memory",
+            "Bookkeeper correction learning",
+            "Category mapping based on firm chart of accounts",
+            "Duplicate detection tuning",
+            "Audit log of suggested vs approved categories",
+            "Exception reporting dashboard",
+        ],
+    },
+    "communication": {
+        "copy": (
+            "The current version converts internal notes into structured client communication drafts. "
+            "The next step is to add advisor approval, reusable templates, CRM integration, and review "
+            "tracking before any client-facing message is sent."
+        ),
+        "items": [
+            "Advisor approval workflow",
+            "Saved client communication templates",
+            "CRM/client portal integration",
+            "Tone and format presets",
+            "Compliance review checklist",
+            "Before-send review status",
+            "Version history for generated drafts",
+            "Client-specific context fields",
+            "Email draft export or Gmail/Outlook integration",
+        ],
+    },
+    "strategy": {
+        "copy": (
+            "The current version converts internal strategy notes into client-facing drafts. "
+            "The next step is to ground outputs in approved strategy documents and add a review process "
+            "for accuracy, brand alignment, and compliance."
+        ),
+        "items": [
+            "Connect to approved tax strategy knowledge base",
+            "Add content review workflow",
+            "Add brand voice examples approved by the team",
+            "Add compliance checklist",
+            "Add content version history",
+            "Add reusable prompt templates",
+            "Add export to Google Docs or CMS",
+            "Add campaign tagging",
+        ],
+    },
+    "automations": {
+        "copy": (
+            "The current version shows workflow blueprints and automation architecture. "
+            "The next step is to implement validated workflows with logs, alerts, manual approval "
+            "checkpoints, and integrations into the firm's existing tools."
+        ),
+        "items": [
+            "Convert workflow blueprints into live n8n workflows",
+            "Add Zapier/Make integration options",
+            "Add trigger logs",
+            "Add failed automation alerts",
+            "Add manual approval checkpoints",
+            "Add workflow testing sandbox",
+            "Add CRM/client portal triggers",
+            "Add QuickBooks event triggers",
+            "Add team notification routing",
+        ],
+    },
+    "dashboard": {
+        "copy": (
+            "The current version demonstrates dashboard insights from transaction data. "
+            "The next step is to define the scoring model with the advisory team, add verified client "
+            "metrics, and connect to real reporting systems."
+        ),
+        "items": [
+            "Define scoring logic with advisory/bookkeeping team",
+            "Add client-specific benchmarks",
+            "Add tax savings tracking",
+            "Add net worth trend tracking",
+            "Add recurring monthly dashboard snapshots",
+            "Add advisor notes",
+            "Add client-facing PDF export",
+            "Add data validation checks",
+            "Add QuickBooks or reporting integration",
+        ],
+    },
+}
+
+
+def _render_module_impact(module_key: str):
+    """Render a Business Impact expander for a specific module."""
+    data = _MODULE_IMPACT.get(module_key)
+    if not data:
+        return
+
+    measured_html = "".join(
+        f'<div class="measured-by-item">· {item}</div>' for item in data["measured"]
+    )
+
+    with st.expander("📊 Business Impact — Potential Value for Your Tax Coach"):
+        st.markdown(
+            f'<div class="module-impact-copy">{data["copy"]}</div>'
+            f'<div class="measured-by">'
+            f'<div class="measured-by-title">Measured By (Prototype KPI Suggestions)</div>'
+            f'{measured_html}'
+            f'</div>'
+            f'<div style="margin-top:0.75rem">'
+            f'<div class="measured-by-title">Before vs After</div>'
+            f'<div class="ba-wrap">'
+            f'<div class="ba-row">'
+            f'<div class="ba-label ba-before-lbl">Before</div>'
+            f'<div class="ba-text">{data["before"]}</div>'
+            f'</div>'
+            f'<div class="ba-row">'
+            f'<div class="ba-label ba-after-lbl">After</div>'
+            f'<div class="ba-text">{data["after"]}</div>'
+            f'</div></div></div>',
+            unsafe_allow_html=True,
+        )
+
+
+def _render_module_roadmap(module_key: str):
+    """Render a Next Improvements expander for a specific module."""
+    data = _MODULE_ROADMAP.get(module_key)
+    if not data:
+        return
+    bullets_html = "".join(
+        f'<div class="next-imp-bullet">· {item}</div>' for item in data["items"]
+    )
+    with st.expander("🗺️ Next Improvements — Production Hardening Roadmap"):
+        st.markdown(
+            f'<div class="next-improvements-card">'
+            f'<div class="next-imp-copy">{data["copy"]}</div>'
+            f'{bullets_html}'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+
+def _render_production_roadmap():
+    """Render the top-level Production Hardening Roadmap section on the dashboard."""
+    st.markdown(
+        '<div class="roadmap-section-title" style="margin-top:1.5rem">Production Hardening Roadmap</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="roadmap-intro-copy">'
+        "TaxCopilot is a deployed prototype designed to demonstrate the architecture, workflow, and business "
+        "value of an internal AI command center for a tax advisory firm. The next step would be production "
+        "hardening with real team workflows, approved internal documentation, role-based access, audit logs, "
+        "feedback loops, and deeper integrations."
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    ROADMAP_CARDS = [
+        {
+            "icon": "🔐",
+            "title": "Security & Access Control",
+            "chip": "next",
+            "desc": "Add role-based access so tax, bookkeeping, operations, and marketing users only see the tools and data relevant to their work.",
+            "items": [
+                "Role-based permissions",
+                "Admin/user roles",
+                "Client-data access controls",
+                "Secure session management",
+                "Stronger authentication options",
+            ],
+        },
+        {
+            "icon": "📂",
+            "title": "Document Governance",
+            "chip": "next",
+            "desc": "Improve how SOPs, strategy guides, and internal documentation are uploaded, reviewed, versioned, and retired.",
+            "items": [
+                "Document approval workflow",
+                "Source versioning",
+                "Expiration dates for outdated SOPs",
+                "Admin review queue",
+                "Document owner metadata",
+            ],
+        },
+        {
+            "icon": "🧪",
+            "title": "AI Evaluation & Quality Control",
+            "chip": "next",
+            "desc": "Create structured test sets and feedback loops to measure answer quality, retrieval accuracy, and user trust.",
+            "items": [
+                "Golden test questions",
+                "Expected answer comparisons",
+                "Retrieval quality scoring",
+                "Human feedback buttons",
+                "Hallucination risk tracking",
+                "Prompt/version testing",
+            ],
+        },
+        {
+            "icon": "✅",
+            "title": "Human Review Workflows",
+            "chip": "next",
+            "desc": "Add approval queues for tax-sensitive answers, client communication drafts, bookkeeping exports, and marketing content.",
+            "items": [
+                "Advisor approval queue",
+                "Bookkeeper approval queue",
+                "Marketing review queue",
+                "Review status badges",
+                "Approved/rejected history",
+                "Comments and revision notes",
+            ],
+        },
+        {
+            "icon": "🔌",
+            "title": "System Integrations",
+            "chip": "production",
+            "desc": "Connect TaxCopilot to the firm's existing tools after process validation.",
+            "items": [
+                "QuickBooks Online API",
+                "CRM integration",
+                "Client portal integration",
+                "Google Drive or Dropbox document sync",
+                "Email draft integration",
+                "Slack or team chat notifications",
+                "Zapier, Make, or n8n workflows",
+            ],
+        },
+        {
+            "icon": "📡",
+            "title": "Monitoring & Business Metrics",
+            "chip": "production",
+            "desc": "Track adoption, usage, accuracy, and operational impact over time.",
+            "items": [
+                "Questions answered",
+                "Documents searched",
+                "Transactions reviewed",
+                "Issues flagged",
+                "Drafts generated",
+                "Time saved estimates",
+                "User feedback trends",
+                "Error and fallback tracking",
+            ],
+        },
+    ]
+
+    CHIP_HTML = {
+        "next":       '<span class="roadmap-chip chip-next">Next Step</span>',
+        "production": '<span class="roadmap-chip chip-production">Production Upgrade</span>',
+    }
+
+    cards_html = ""
+    for card in ROADMAP_CARDS:
+        bullets = "".join(
+            f'<div class="roadmap-bullet">· {item}</div>' for item in card["items"]
+        )
+        cards_html += (
+            f'<div class="roadmap-card">'
+            f'<div class="roadmap-card-header">'
+            f'<span class="roadmap-card-icon">{card["icon"]}</span>'
+            f'<span class="roadmap-card-title">{card["title"]}</span>'
+            f'</div>'
+            f'{CHIP_HTML[card["chip"]]}'
+            f'<div class="roadmap-card-desc">{card["desc"]}</div>'
+            f'{bullets}'
+            f'</div>'
+        )
+    st.markdown(f'<div class="roadmap-grid">{cards_html}</div>', unsafe_allow_html=True)
+
+    with st.expander("📊 From Prototype to Production — Capability Map"):
+        PROTO_ROWS = [
+            ("Internal document search",
+             "Document governance, versioning, role-based access",
+             "Keeps internal answers accurate and permission-safe"),
+            ("RAG answers with sources",
+             "Retrieval evaluation, feedback loops, fallback thresholds",
+             "Improves trust and reduces unsupported answers"),
+            ("CSV bookkeeping review",
+             "QuickBooks integration, approval queue, chart of accounts mapping",
+             "Fits real bookkeeping workflows safely"),
+            ("Client email drafting",
+             "Advisor approval, CRM/client portal integration, version history",
+             "Keeps client communication accurate and reviewable"),
+            ("Content generation",
+             "Approved brand voice library, review workflow, analytics",
+             "Keeps marketing consistent, accurate, and measurable"),
+            ("Dashboard insights",
+             "Real client metrics, advisory-defined scoring, recurring reports",
+             "Makes client value visible using trusted data"),
+            ("Workflow diagrams",
+             "Live n8n/Zapier/Make automations with logs and alerts",
+             "Reduces manual handoffs while preserving control"),
+        ]
+        rows_html = "".join(
+            f"<tr><td>{cur}</td><td>{upg}</td><td>{why}</td></tr>"
+            for cur, upg, why in PROTO_ROWS
+        )
+        st.markdown(
+            '<table class="proto-table"><thead><tr>'
+            "<th>Current Prototype Capability</th>"
+            "<th>Production Upgrade</th>"
+            "<th>Why It Matters</th>"
+            f"</tr></thead><tbody>{rows_html}</tbody></table>",
+            unsafe_allow_html=True,
+        )
+
+    with st.expander("📅 First 90 Days Implementation Plan"):
+        PHASES = [
+            {
+                "label": "Days 1–15",
+                "title": "Discovery & Process Mapping",
+                "items": [
+                    "Meet tax, bookkeeping, operations, and marketing teams",
+                    "Review SOPs, strategy guides, and documentation structure",
+                    "Identify repeated internal questions",
+                    "Map bookkeeping cleanup process",
+                    "Identify highest-impact automations",
+                ],
+            },
+            {
+                "label": "Days 16–45",
+                "title": "Internal AI Brain v1",
+                "items": [
+                    "Load approved SOPs and strategy guides",
+                    "Build searchable source-based internal assistant",
+                    "Add review flags for tax-sensitive questions",
+                    "Test with a small team",
+                    "Track unanswered questions and documentation gaps",
+                ],
+            },
+            {
+                "label": "Days 46–70",
+                "title": "Workflow Tools",
+                "items": [
+                    "Improve bookkeeping review assistant",
+                    "Add client recap generator",
+                    "Add draft approval process",
+                    "Build first automation workflow",
+                    "Begin measuring time saved and review rate",
+                ],
+            },
+            {
+                "label": "Days 71–90",
+                "title": "Adoption & Iteration",
+                "items": [
+                    "Train team on tools and gather feedback",
+                    "Improve retrieval and prompts based on usage",
+                    "Add integrations based on team workflow",
+                    "Prepare roadmap for next AI systems",
+                ],
+            },
+        ]
+        phases_html = ""
+        for phase in PHASES:
+            bullets = "".join(
+                f'<div class="plan-bullet">· {item}</div>' for item in phase["items"]
+            )
+            phases_html += (
+                f'<div class="plan-phase">'
+                f'<div class="plan-phase-label">{phase["label"]}</div>'
+                f'<div class="plan-phase-header">{phase["title"]}</div>'
+                f'{bullets}'
+                f'</div>'
+            )
+        st.markdown(phases_html, unsafe_allow_html=True)
+
+
 def _render_dashboard():
     """Render the main product header and workspace summary."""
     workspace_name = st.session_state.get("workspace_name", "No workspace loaded")
@@ -1097,13 +1957,13 @@ def _render_dashboard():
         f"""
         <div class="hero-shell">
             <div>
-                <div class="hero-badge">Tax &amp; Bookkeeping Workspace</div>
+                <div class="hero-badge">Internal AI Command Center — Human-in-the-Loop Workflow</div>
                 <h1 class="hero-title">{APP_TITLE}</h1>
-                <p class="hero-subtitle">AI Assistant for Tax &amp; Bookkeeping Workflows</p>
-                <span class="hero-chip">Document Search</span>
+                <p class="hero-subtitle">Internal AI assistant that supports the team — retrieves knowledge, drafts communications, flags issues, and surfaces insights for human review.</p>
+                <span class="hero-chip">Source-Based Retrieval</span>
                 <span class="hero-chip">Bookkeeping Review</span>
-                <span class="hero-chip">Client Reports</span>
-                <span class="hero-chip">Content Generation</span>
+                <span class="hero-chip">Draft Communications</span>
+                <span class="hero-chip">Advisor-in-the-Loop</span>
             </div>
             <div class="hero-stats">
                 <div class="hero-stat-card">
@@ -1156,6 +2016,10 @@ def _render_dashboard():
 
     # Feature cards (icon + accent colour per module)
     _render_feature_cards()
+
+    # Business impact overview + value map
+    _render_business_impact_overview()
+    _render_production_roadmap()
 
     # Workspace detail / quick-start strip
     with st.container(border=True):
@@ -1264,6 +2128,39 @@ def _render_sidebar():
                 st.caption(f"👍 {positive} helpful · 👎 {negative} not helpful")
                 st.caption(f"Satisfaction: {positive/total:.0%}")
 
+        # ── Prototype Usage Metrics ───────────────────────────────────────
+        questions    = st.session_state.get("kpi_questions_asked", 0)
+        docs_indexed = len(st.session_state.get("workspace_file_names", []))
+        chunks       = len(st.session_state.get("workspace_chunks", []))
+        txn          = st.session_state.get("kpi_transactions_analyzed", 0)
+        issues       = st.session_state.get("kpi_issues_flagged", 0)
+        drafts       = st.session_state.get("kpi_drafts_generated", 0)
+        content      = st.session_state.get("kpi_content_pieces", 0)
+
+        kpi_rows = [
+            ("Questions asked", questions),
+            ("Documents indexed", docs_indexed),
+            ("Chunks created", chunks),
+            ("Transactions analyzed", txn),
+            ("Issues flagged", issues),
+            ("Drafts generated", drafts),
+            ("Content pieces", content),
+        ]
+        rows_html = "".join(
+            f'<div class="kpi-row"><span class="kpi-lbl">{lbl}</span>'
+            f'<span class="kpi-val">{val}</span></div>'
+            for lbl, val in kpi_rows
+        )
+        st.markdown(
+            f'<div style="margin-top:0.5rem">'
+            f'<div class="kpi-section-title">Prototype Usage Metrics</div>'
+            f'{rows_html}'
+            f'<div style="font-size:0.62rem;color:#3D4D60;margin-top:0.35rem">'
+            f'Session-level only. Not company-wide production metrics.'
+            f'</div></div>',
+            unsafe_allow_html=True,
+        )
+
         st.markdown("### Status")
         st.caption(f"Ollama model: `{DEFAULT_OLLAMA_MODEL}`")
         st.toggle("Show debug panels", key="show_debug_panels")
@@ -1284,24 +2181,100 @@ def _render_sidebar():
                 st.rerun()
 
 
+def _brain_review_required(result: dict) -> tuple:
+    """Return (review_required: bool, reason: str) using confidence, style, and question content."""
+    confidence    = result.get("confidence", 0.0)
+    question_style = result.get("question_style", "")
+    answer        = result.get("answer", "")
+    retrieval_mode = result.get("retrieval_mode", "")
+    question      = st.session_state.get("last_brain_question", "").lower()
+
+    TAX_SENSITIVE = {
+        "tax", "taxes", "irs", "deduction", "deductions", "filing", "audit",
+        "accounting", "bookkeeping", "client", "strategy", "advice", "penalty",
+        "compliance", "entity", "s-corp", "llc", "profit", "loss", "income",
+        "expense", "quarterly", "estimated", "write-off", "depreciation",
+        "return", "1099", "w-2", "schedule", "basis", "capital gains",
+    }
+    is_tax_sensitive = any(kw in question for kw in TAX_SENSITIVE)
+
+    if answer in NO_PROOF_ANSWERS:
+        return True, "No supporting source found in uploaded documents."
+    if confidence < 0.40:
+        return True, "Source support is weak — low confidence retrieval. Consult source documents directly."
+    if retrieval_mode == "Keyword fallback":
+        return True, "Keyword-only retrieval mode active (semantic embeddings unavailable). Verify manually."
+    if question_style in {"assessment", "complex"}:
+        return True, "Answer involves professional judgment — a qualified team member should review."
+    if question_style == "workflow" and is_tax_sensitive:
+        return True, "Workflow involves tax-sensitive steps — review the source SOP directly."
+    if is_tax_sensitive and confidence < 0.75:
+        return True, "Tax-sensitive topic with moderate source confidence — advisor review recommended."
+    return False, "Source support is strong and the question is factual in nature."
+
+
+def _brain_render_source_card(source: dict, index: int):
+    """Render a structured source document card with metadata and excerpt."""
+    raw_score   = source.get("score", 0.0)
+    relevance   = min(int(raw_score * 100), 99)
+    doc_name    = source.get("document_name", "Unknown")
+    doc_type    = source.get("document_type", "General Document")
+    section     = source.get("section_title") or source.get("section_label", "—")
+    page_num    = source.get("page_number")
+    chunk_id    = source.get("chunk_id")
+    excerpt     = source.get("chunk_text", "")
+
+    if relevance >= 70:
+        rel_class = "rel-high"
+    elif relevance >= 45:
+        rel_class = "rel-medium"
+    else:
+        rel_class = "rel-low"
+
+    location_str = f"Page {page_num}" if page_num else f"Chunk {chunk_id}"
+
+    meta_html = (
+        f"<span>📄 {doc_type}</span>"
+        f"<span>Section: {section}</span>"
+        f"<span>{location_str}</span>"
+    )
+
+    st.markdown(
+        f"""<div class="brain-src-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
+                <div class="brain-src-name">{index}. {doc_name}</div>
+                <span class="rel-pill {rel_class}">Relevance {relevance}%</span>
+            </div>
+            <div class="brain-src-meta">{meta_html}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+    if excerpt:
+        with st.expander("View relevant excerpt", expanded=(index == 1)):
+            st.markdown(
+                '<div class="brain-excerpt-label">Relevant Excerpt</div>'
+                f'<div class="brain-excerpt-box">"{excerpt[:600]}{"…" if len(excerpt) > 600 else ""}"</div>'
+                '<div class="brain-excerpt-helper">This excerpt is the retrieved context used to generate the answer.</div>',
+                unsafe_allow_html=True,
+            )
+
+
 def _render_citation_blocks(result):
-    """Render source and proof cards for the current answer."""
+    """Legacy citation renderer — kept for compound results. Main path uses _brain_render_source_card."""
     citations = result.get("citations") or []
     if not citations and result.get("citation"):
         citations = [result["citation"]]
-
     if not citations or result.get("answer") in NO_PROOF_ANSWERS:
         return
-
     for citation in citations:
         with st.container(border=True):
-            st.markdown("**Source**")
+            st.markdown("**Source Document**")
             st.write(
                 f"{citation['document_name']} — {citation['section_label']} — Chunk {citation['chunk_id']}"
             )
             st.caption(f"Document type: {citation['document_type']}")
             if citation.get("proof_snippet"):
-                st.markdown("**Proof**")
+                st.markdown("**Relevant Excerpt**")
                 st.markdown(f"<div class='answer-proof'>\"{citation['proof_snippet']}\"</div>", unsafe_allow_html=True)
 
 
@@ -1378,80 +2351,198 @@ def _run_brain_query():
     st.session_state["last_brain_result"] = result
     st.session_state["last_brain_question"] = question
     st.session_state["last_brain_timestamp"] = datetime.now().isoformat()
+    st.session_state["kpi_questions_asked"] = st.session_state.get("kpi_questions_asked", 0) + 1
     _record_recent_query(question, result.get("answer") or "")
 
 
 def _render_brain_result():
-    """Render the answer, source, proof, and retrieved chunks."""
+    """Enterprise source-citation answer UI for the Internal AI Brain."""
     result = st.session_state.get("last_brain_result")
+
+    # ── Empty state: no query run yet ────────────────────────────────────────
     if not result:
         with st.container(border=True):
-            st.markdown("**Answer**")
-            st.caption("Results appear here")
+            st.markdown(
+                "<div style='text-align:center;padding:2rem 1rem'>"
+                "<div style='font-size:1.6rem;margin-bottom:0.6rem'>🧠</div>"
+                "<div style='font-size:0.92rem;font-weight:600;color:#F0F4F8;margin-bottom:0.35rem'>"
+                "Ask a question to search your knowledge base</div>"
+                "<div style='font-size:0.8rem;color:#8892A4;max-width:340px;margin:0 auto;line-height:1.6'>"
+                "The assistant will retrieve relevant source material from your uploaded documents "
+                "and provide a grounded, cited answer.</div>"
+                "</div>",
+                unsafe_allow_html=True,
+            )
         return
 
-    timestamp_text = _format_timestamp(st.session_state.get("last_brain_timestamp"))
-    st.caption(f"Generated at {timestamp_text}")
+    ts = _format_timestamp(st.session_state.get("last_brain_timestamp"))
+    confidence   = result.get("confidence", 0.0)
+    sources      = result.get("sources", [])
+    answer       = result.get("answer", "")
+    question_style = result.get("question_style", "")
 
+    review_req, review_reason = _brain_review_required(result)
+
+    # ── Compound question path ────────────────────────────────────────────────
     if result.get("compound_results"):
+        st.caption(f"Source-based answer · Generated {ts}")
         for claim_result in result["compound_results"]:
+            cr_conf = claim_result.get("confidence", 0.0)
+            cr_review, cr_reason = _brain_review_required(claim_result)
             with st.container(border=True):
-                st.markdown(f"**Answer: {claim_result['label']}**")
+                st.markdown(
+                    '<div class="brain-source-badge">🔍 Source-Based Answer</div>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(f"**{claim_result['label']}**")
                 st.markdown(claim_result["answer"])
-                confidence = claim_result.get("confidence", 0.0)
-                if confidence >= 0.70:
-                    st.caption(f"🟢 High confidence · {confidence:.0%}")
-                elif confidence >= 0.40:
-                    st.caption(f"🟡 Medium confidence · {confidence:.0%}")
-                elif confidence > 0:
-                    st.caption(f"🔴 Low confidence · Review source below · {confidence:.0%}")
-                _render_citation_blocks(claim_result)
 
-        for claim_result in result["compound_results"]:
-            _render_source_chunk_list(
-                claim_result["sources"],
-                heading=f"{claim_result['label']} — Retrieved Chunks",
-            )
+                if cr_conf >= 0.70:
+                    conf_cls, conf_lbl = "conf-high", "High"
+                elif cr_conf >= 0.40:
+                    conf_cls, conf_lbl = "conf-medium", "Medium"
+                else:
+                    conf_cls, conf_lbl = "conf-low", "Low"
+
+                rev_cls = "review-yes" if cr_review else "review-no"
+                rev_lbl = "Yes" if cr_review else "No"
+
+                st.markdown(
+                    f"""<div class="brain-trust-panel">
+                        <div class="trust-row">
+                            <span class="trust-lbl">Confidence</span>
+                            <span class="trust-val {conf_cls}">{conf_lbl} · {cr_conf:.0%}</span>
+                        </div>
+                        <div class="trust-row">
+                            <span class="trust-lbl">Review Required</span>
+                            <span class="trust-val {rev_cls}">{rev_lbl}</span>
+                        </div>
+                        <div class="trust-row">
+                            <span class="trust-lbl">Reason</span>
+                            <span class="trust-reason">{cr_reason}</span>
+                        </div>
+                    </div>""",
+                    unsafe_allow_html=True,
+                )
+
+                if claim_result.get("sources"):
+                    st.markdown('<div class="brain-sources-header">Sources Used</div>', unsafe_allow_html=True)
+                    for idx, src in enumerate(claim_result["sources"][:3], start=1):
+                        _brain_render_source_card(src, idx)
 
         _render_document_debug_panels(result)
         return
 
+    # ── Single-question path ──────────────────────────────────────────────────
     with st.container(border=True):
-        st.markdown("**Answer**")
-        st.markdown(result["answer"])
-        confidence = result.get("confidence", 0.0)
+        # Header badge + timestamp
+        hdr_col, ts_col = st.columns([3, 1])
+        with hdr_col:
+            st.markdown(
+                '<div class="brain-source-badge">🔍 Source-Based Answer</div>'
+                '<div class="brain-helper-line">'
+                "Generated from retrieved internal documents. "
+                "Review required for tax-sensitive decisions."
+                "</div>",
+                unsafe_allow_html=True,
+            )
+        with ts_col:
+            st.caption(ts)
+
+        # ── Fallback: no source found ─────────────────────────────────────────
+        if answer in NO_PROOF_ANSWERS:
+            st.markdown(
+                '<div class="brain-fallback-box">'
+                '<div class="brain-fallback-title">⚠️ Insufficient Source Coverage</div>'
+                '<div class="brain-fallback-sub">'
+                "I could not find enough support in the uploaded documents to answer confidently. "
+                "Please review the source materials directly or consult a qualified team member."
+                "</div>"
+                '<div class="brain-fallback-tip">'
+                "💡 Suggested next step: Upload a relevant SOP, strategy guide, or internal note "
+                "to improve knowledge base coverage for this topic."
+                "</div>"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+            if sources:
+                st.markdown('<div class="brain-sources-header">Top Attempted Matches</div>', unsafe_allow_html=True)
+                for idx, src in enumerate(sources[:2], start=1):
+                    _brain_render_source_card(src, idx)
+            _render_document_debug_panels(result)
+            return
+
+        # ── Answer text ───────────────────────────────────────────────────────
+        st.markdown(answer)
+
+        # ── Confidence / review trust panel ──────────────────────────────────
         if confidence >= 0.70:
-            st.caption(f"🟢 High confidence · {confidence:.0%}")
+            conf_cls, conf_lbl = "conf-high", "High"
         elif confidence >= 0.40:
-            st.caption(f"🟡 Medium confidence · {confidence:.0%}")
+            conf_cls, conf_lbl = "conf-medium", "Medium"
         elif confidence > 0:
-            st.caption(f"🔴 Low confidence · Review source below · {confidence:.0%}")
-        feedback_col1, feedback_col2, feedback_col3 = st.columns([1, 1, 4])
-        with feedback_col1:
-            if st.button("👍 Helpful", key=f"feedback_up_{st.session_state.get('last_brain_timestamp', '')}"):
+            conf_cls, conf_lbl = "conf-low", "Low"
+        else:
+            conf_cls, conf_lbl = "conf-low", "—"
+
+        rev_cls = "review-yes" if review_req else "review-no"
+        rev_lbl = "Yes" if review_req else "No"
+
+        st.markdown(
+            f"""<div class="brain-trust-panel">
+                <div class="trust-row">
+                    <span class="trust-lbl">Confidence</span>
+                    <span class="trust-val {conf_cls}">{conf_lbl} · {confidence:.0%}</span>
+                </div>
+                <div class="trust-row">
+                    <span class="trust-lbl">Review Required</span>
+                    <span class="trust-val {rev_cls}">{rev_lbl}</span>
+                </div>
+                <div class="trust-row">
+                    <span class="trust-lbl">Reason</span>
+                    <span class="trust-reason">{review_reason}</span>
+                </div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
+        # ── Feedback buttons ──────────────────────────────────────────────────
+        fb1, fb2, _ = st.columns([1, 1.3, 4])
+        ts_key = st.session_state.get("last_brain_timestamp", "")
+        with fb1:
+            if st.button("👍 Helpful", key=f"feedback_up_{ts_key}"):
                 st.session_state.setdefault("feedback_log", []).append({
                     "question": st.session_state.get("last_brain_question", ""),
                     "feedback": "positive",
-                    "timestamp": st.session_state.get("last_brain_timestamp", ""),
+                    "timestamp": ts_key,
                 })
-                st.toast("Thanks for the feedback!")
-        with feedback_col2:
-            if st.button("👎 Not helpful", key=f"feedback_down_{st.session_state.get('last_brain_timestamp', '')}"):
+                st.toast("Thanks — this feedback helps improve the knowledge base.")
+        with fb2:
+            if st.button("👎 Needs Improvement", key=f"feedback_down_{ts_key}"):
                 st.session_state.setdefault("feedback_log", []).append({
                     "question": st.session_state.get("last_brain_question", ""),
                     "feedback": "negative",
-                    "timestamp": st.session_state.get("last_brain_timestamp", ""),
+                    "timestamp": ts_key,
                 })
-                st.toast("Thanks — we'll use this to improve.")
-        _render_citation_blocks(result)
+                st.toast("Thanks — noted. Consider uploading more specific source documents.")
 
-    if result["answer"] == NO_ANSWER_MESSAGE:
-        st.info(
-            "Try a more specific question, a different document, or a clearer text-based PDF. "
-            "The retrieved chunks below show what the system found most relevant."
+        # ── Sources used ──────────────────────────────────────────────────────
+        top_sources = sources[:3]
+        if top_sources:
+            st.markdown('<div class="brain-sources-header">Sources Used</div>', unsafe_allow_html=True)
+            for idx, src in enumerate(top_sources, start=1):
+                _brain_render_source_card(src, idx)
+
+        # ── Follow-up guidance ────────────────────────────────────────────────
+        st.markdown(
+            '<div class="brain-followup">'
+            "💬 <strong>Need more detail?</strong> Try a follow-up like: "
+            "<em>'Show me the step-by-step SOP'</em> or "
+            "<em>'What documents are required for this process?'</em>"
+            "</div>",
+            unsafe_allow_html=True,
         )
 
-    _render_source_chunk_list(result.get("sources", []))
     _render_document_debug_panels(result)
 
 
@@ -1494,21 +2585,30 @@ def _render_internal_ai_brain_tab():
     """Render the highest-priority module: local document search and evidence-backed Q&A."""
     st.subheader("Internal AI Brain")
     st.markdown(
-        "<p class='section-copy'>Search uploaded documents and review answer, source, and proof.</p>",
+        "<p class='section-copy'>Retrieve source-grounded answers from uploaded internal documents. "
+        "Suggested answers are grounded in retrieved source material to reduce hallucination risk — "
+        "review for tax-sensitive decisions before relying on them.</p>",
         unsafe_allow_html=True,
     )
-
-    if not st.session_state.get("workspace_documents"):
-        _render_empty_state(
-            title="Upload documents to begin",
-            description="PDF, TXT, or CSV",
-        )
 
     left_col, right_col = st.columns([1, 1.25], gap="large")
 
     with left_col:
         with st.container(border=True):
-            _render_step_header("Documents", "PDF, TXT, or CSV")
+            _render_step_header("Knowledge Base", "Upload SOPs, guides, client notes, and internal documents")
+
+            if not st.session_state.get("workspace_documents"):
+                st.markdown(
+                    "<div style='background:rgba(79,142,247,0.04);border:1px solid rgba(79,142,247,0.12);"
+                    "border-radius:8px;padding:0.9rem 1rem;margin-bottom:0.75rem'>"
+                    "<div style='font-size:0.82rem;font-weight:600;color:#F0F4F8;margin-bottom:0.25rem'>"
+                    "Upload internal documents to activate the AI Brain</div>"
+                    "<div style='font-size:0.76rem;color:#8892A4;line-height:1.6'>"
+                    "Add SOPs, strategy guides, client communication templates, or internal notes. "
+                    "The assistant will use these documents to answer team questions with source references."
+                    "</div></div>",
+                    unsafe_allow_html=True,
+                )
 
             if st.button("Load Sample Workspace", type="primary", use_container_width=True):
                 with st.spinner("Loading the sample workspace..."):
@@ -1526,14 +2626,33 @@ def _render_internal_ai_brain_tab():
 
             if st.button("Index Uploaded Files", use_container_width=True):
                 try:
-                    with st.spinner("Indexing uploaded files..."):
+                    with st.spinner("Building knowledge base — chunking and embedding documents..."):
                         _index_uploaded_workspace(uploaded_files)
                     st.rerun()
                 except Exception as error:
                     st.error(f"Could not build the workspace: {error}")
 
-            if st.session_state.get("retrieval_mode") == "Keyword fallback":
-                st.caption("🔍 Using keyword-based retrieval")
+            # Knowledge base status panel
+            if st.session_state.get("workspace_documents"):
+                doc_count   = len(st.session_state.get("workspace_file_names", []))
+                chunk_count = len(st.session_state.get("workspace_chunks", []))
+                ret_mode    = st.session_state.get("retrieval_mode", "—")
+                vs_label    = "FAISS (semantic)" if "Semantic" in ret_mode else "Keyword index"
+                loaded_at   = _format_timestamp(st.session_state.get("workspace_loaded_at"))
+                st.markdown(
+                    f'<div class="brain-kb-status">'
+                    f'<div class="kb-status-title">✓ Knowledge Base Ready</div>'
+                    f'<div class="kb-status-row">Documents indexed: <strong>{doc_count}</strong></div>'
+                    f'<div class="kb-status-row">Chunks created: <strong>{chunk_count}</strong></div>'
+                    f'<div class="kb-status-row">Embedding model: <strong>all-MiniLM-L6-v2</strong></div>'
+                    f'<div class="kb-status-row">Vector store: <strong>{vs_label}</strong></div>'
+                    f'<div class="kb-status-row">Status: <strong>Ready for source-based search</strong></div>'
+                    f'<div class="kb-status-row">Indexed: <strong>{loaded_at}</strong></div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            elif st.session_state.get("retrieval_mode") == "Keyword fallback":
+                st.caption("🔍 Using keyword-based retrieval — semantic embeddings unavailable")
 
         if st.session_state.get("workspace_documents"):
             _render_loaded_document_cards()
@@ -1541,7 +2660,7 @@ def _render_internal_ai_brain_tab():
 
     with right_col:
         with st.container(border=True):
-            _render_step_header("Ask", "Try a sample prompt or enter your own question")
+            _render_step_header("Ask", "Search your internal documents with a natural language question")
 
             question_rows = [st.columns(2), st.columns(2), st.columns(2)]
             question_columns = question_rows[0] + question_rows[1] + question_rows[2]
@@ -1583,6 +2702,9 @@ def _render_internal_ai_brain_tab():
         _render_brain_result()
         _render_recent_queries()
 
+    _render_module_impact("brain")
+    _render_module_roadmap("brain")
+
 
 def _resolve_demo_csv_path(selected_demo_file):
     """Resolve a bundled transactions file from the demo dataset."""
@@ -1612,7 +2734,8 @@ def _render_bookkeeping_copilot_tab():
     """Render the bookkeeping cleanup and triage workflow."""
     st.subheader("Bookkeeping Copilot")
     st.markdown(
-        "<p class='section-copy'>Review bookkeeping CSVs and surface rows that need attention.</p>",
+        "<p class='section-copy'>Flag transactions that need attention and suggest categories for bookkeeper review. "
+        "A bookkeeper should approve all outputs before import into QuickBooks or any accounting system.</p>",
         unsafe_allow_html=True,
     )
 
@@ -1636,7 +2759,7 @@ def _render_bookkeeping_copilot_tab():
                 st.session_state["bookkeeping_demo_choice"] = "transactions_xyz.csv"
                 st.rerun()
 
-            st.caption("Suggested categories are assistive only and should be reviewed before use.")
+            st.caption("⚠️ Suggested categories are assistive only. A bookkeeper should review and approve before import into any accounting system.")
 
         raw_df, source_name = _load_bookkeeping_dataframe(uploaded_csv)
         if raw_df is None:
@@ -1648,6 +2771,13 @@ def _render_bookkeeping_copilot_tab():
 
         with st.spinner("Reviewing the transaction file and preparing suggestions..."):
             cleaned_df, report = process_dataframe(raw_df)
+        # Track prototype usage KPIs (session-level)
+        st.session_state["kpi_transactions_analyzed"] = report.get("total_rows", 0)
+        st.session_state["kpi_issues_flagged"] = (
+            report.get("duplicate_count", 0)
+            + report.get("missing_category_count", 0)
+            + report.get("anomaly_count", 0)
+        )
 
         st.session_state["bookkeeping_download_name"] = f"cleaned_{source_name}"
 
@@ -1663,7 +2793,7 @@ def _render_bookkeeping_copilot_tab():
         )
 
         if report["vendor_suggestions"]:
-            st.markdown("#### Vendor Normalization Suggestions")
+            st.markdown("#### Vendor Normalization Suggestions — Review Before Applying")
             st.dataframe(
                 pd.DataFrame(report["vendor_suggestions"]).rename(
                     columns={
@@ -1718,6 +2848,9 @@ def _render_bookkeeping_copilot_tab():
             else:
                 st.dataframe(rows_needing_review, use_container_width=True, hide_index=True)
 
+    _render_module_impact("bookkeeping")
+    _render_module_roadmap("bookkeeping")
+
 
 def _get_non_csv_workspace_files():
     """Return non-CSV file names for content-generation workflows."""
@@ -1734,7 +2867,8 @@ def _render_client_communication_tab():
     """Render the client-ready report generation workflow."""
     st.subheader("Client Communication")
     st.markdown(
-        "<p class='section-copy'>Generate structured client-ready outputs from uploaded documents.</p>",
+        "<p class='section-copy'>Generate draft client-facing outputs from internal documents. "
+        "All drafts should be reviewed by an advisor for accuracy, tone, and client-specific context before sending.</p>",
         unsafe_allow_html=True,
     )
 
@@ -1815,18 +2949,20 @@ def _render_client_communication_tab():
                                 "client_email": "",
                             }
                         st.session_state["client_explanation_output"] = ""
+                        st.session_state["kpi_drafts_generated"] = st.session_state.get("kpi_drafts_generated", 0) + 1
                 except RuntimeError as error:
                     st.error(str(error))
 
         report_output = st.session_state.get("client_report_output")
         if report_output:
-            st.markdown("#### Output")
+            st.markdown("#### Draft Output — Review Before Sending")
+            st.caption("ℹ️ This is a draft generated from internal documents. An advisor should review for accuracy, tone, and client-specific context before sending.")
             _REPORT_SECTIONS = [
-                ("Summary", "summary", None, None),
+                ("Draft Summary", "summary", None, None),
                 ("Key Issues", "key_issues", None, None),
                 ("Recommendations", "recommendations", None, None),
-                ("Action Items", "action_items", None, None),
-                ("Client Email Draft", "client_email", 240, "client_report_email_output"),
+                ("Suggested Action Items", "action_items", None, None),
+                ("Draft Client Email — Advisor Review Required", "client_email", 240, "client_report_email_output"),
             ]
             for label, key, height, card_key in _REPORT_SECTIONS:
                 value = report_output.get(key, "")
@@ -1834,15 +2970,18 @@ def _render_client_communication_tab():
                     _render_output_card(label, value, height=height, key=card_key)
         elif not st.session_state.get("client_explanation_output"):
             with st.container(border=True):
-                _render_step_header("Output", "Generated output appears here")
+                _render_step_header("Output", "Generated draft output appears here")
 
+    _render_module_impact("communication")
+    _render_module_roadmap("communication")
 
 
 def _render_strategy_content_studio_tab():
     """Render the strategy-to-content workflow."""
     st.subheader("Strategy Content Studio")
     st.markdown(
-        "<p class='section-copy'>Create polished outward-facing content from internal strategy notes.</p>",
+        "<p class='section-copy'>Create draft client-facing content from internal strategy notes. "
+        "Review all drafts for accuracy and firm alignment before publishing.</p>",
         unsafe_allow_html=True,
     )
 
@@ -1924,6 +3063,7 @@ def _render_strategy_content_studio_tab():
                 else:
                     st.session_state["strategy_output_text"] = output_text
                     st.session_state["strategy_output_label"] = f"{output_type.title()} • {tone}"
+                    st.session_state["kpi_content_pieces"] = st.session_state.get("kpi_content_pieces", 0) + 1
 
         if st.session_state.get("strategy_output_text"):
             _render_output_card(
@@ -1936,12 +3076,16 @@ def _render_strategy_content_studio_tab():
             with st.container(border=True):
                 _render_step_header("Output", "Generated content appears here")
 
+    _render_module_impact("strategy")
+    _render_module_roadmap("strategy")
+
 
 def _render_automations_tab():
     """Render the Automations tab — pre-built workflow triggers and integration roadmap."""
     st.subheader("Automations")
     st.markdown(
-        "<p class='section-copy'>Pre-built workflow automations that connect your internal systems.</p>",
+        "<p class='section-copy'>Workflow blueprints showing how internal systems can be connected. "
+        "These are implementation-ready designs — each automation should be validated by the team before deployment.</p>",
         unsafe_allow_html=True,
     )
 
@@ -1962,9 +3106,9 @@ def _render_automations_tab():
             "name": "Transaction Review Pipeline",
             "trigger": "CSV file uploaded to Bookkeeping Copilot",
             "actions": [
-                "Auto-categorize transactions",
+                "Suggest categories for bookkeeper review",
                 "Flag duplicates and missing data",
-                "Generate review summary for bookkeeper",
+                "Generate review summary for bookkeeper approval",
             ],
             "status": "Active",
             "icon": "📊",
@@ -1999,7 +3143,7 @@ def _render_automations_tab():
             "trigger": "Daily sync at 6:00 AM",
             "actions": [
                 "Import latest transactions from QuickBooks Online",
-                "Run auto-categorization",
+                "Run category suggestions for bookkeeper review",
                 "Send review digest to bookkeeping team",
             ],
             "status": "Planned",
@@ -2063,6 +3207,9 @@ def _render_automations_tab():
             with col:
                 st.markdown(f"{dot} **{name}**")
                 st.caption(timeline)
+
+    _render_module_impact("automations")
+    _render_module_roadmap("automations")
 
 
 _LOGIN_CSS = """
@@ -2550,8 +3697,9 @@ def _render_client_dashboard_tab():
 
     st.subheader("Client Dashboard")
     st.markdown(
-        "<p class='section-copy'>Track income, expenses, and financial health. "
-        "Upload a CSV to replace data. Required columns: type, amount, category, date.</p>",
+        "<p class='section-copy'>Track income, expenses, and financial health with directional insights. "
+        "Upload a CSV to replace data (columns: type, amount, category, date). "
+        "Dashboard insights are for internal review and client discussion — review with the advisory team before sharing with clients.</p>",
         unsafe_allow_html=True,
     )
 
@@ -2789,6 +3937,9 @@ def _render_client_dashboard_tab():
     display = df[["date", "type", "amount", "category", "note"]].copy()
     display["date"] = display["date"].dt.strftime("%Y-%m-%d")
     st.dataframe(display.sort_values("date", ascending=False), use_container_width=True, hide_index=True)
+
+    _render_module_impact("dashboard")
+    _render_module_roadmap("dashboard")
 
 
 def main():
