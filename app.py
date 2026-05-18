@@ -476,6 +476,30 @@ def _apply_page_style():
             box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
         }
 
+        /* ── Material Icons carve-out ─────────────────────────────────────
+           The universal Inter override above breaks Material Symbols Rounded
+           (used by Streamlit for expander arrows etc.), causing icon names
+           to render as raw "_arr" text. Restore the correct font here.       */
+        [data-testid="stIconMaterial"] {
+            font-family: 'Material Symbols Rounded' !important;
+            font-style: normal !important;
+            font-weight: normal !important;
+            font-size: 20px !important;
+            line-height: 1 !important;
+            display: inline-block !important;
+            white-space: nowrap !important;
+            direction: ltr !important;
+            -webkit-font-feature-settings: 'liga' !important;
+            font-feature-settings: 'liga' !important;
+            text-rendering: optimizeLegibility !important;
+        }
+        /* Hide expander toggle arrow entirely — expander is already clickable */
+        [data-testid="stExpander"] summary [data-testid="stIconMaterial"],
+        [data-testid="stExpander"] summary [data-testid="stExpanderToggleIcon"],
+        [data-testid="stExpander"] summary svg {
+            display: none !important;
+        }
+
         /* File uploader */
         [data-testid="stFileUploader"] section {
             background: #1E2533 !important;
@@ -484,12 +508,7 @@ def _apply_page_style():
             transition: border-color 0.2s ease;
         }
         [data-testid="stFileUploader"] section:hover { border-color: #4F8EF7 !important; }
-        /* Hide the widget label that duplicates the uploader instruction text */
-        [data-testid="stFileUploader"] > label,
-        [data-testid="stFileUploader"] > div > label { display: none !important; }
-        /* Keep the drop-zone instruction text visible but styled */
         [data-testid="stFileUploadDropzone"] span { color: #8892A4 !important; font-size: 0.8rem !important; }
-        /* Prevent doubled text from any internal span duplication */
         [data-testid="stFileUploadDropzone"] small { color: #556070 !important; font-size: 0.72rem !important; }
 
         /* Expanders */
@@ -504,11 +523,6 @@ def _apply_page_style():
             font-weight: 500;
         }
         [data-testid="stExpander"] summary:hover { color: #4F8EF7 !important; }
-        /* Hide internal arrow/icon elements that leak as "_arr" text */
-        [data-testid="stExpander"] summary svg { display: none !important; }
-        [data-testid="stExpander"] summary [data-testid="stExpanderToggleIcon"] {
-            display: none !important;
-        }
 
         /* Checkbox & Radio */
         div[data-testid="stCheckbox"] label p,
@@ -2631,6 +2645,7 @@ def _render_internal_ai_brain_tab():
                 type=SUPPORTED_UPLOAD_TYPES,
                 accept_multiple_files=True,
                 key="brain_workspace_uploader",
+                label_visibility="collapsed",
                 help="Upload text-based PDFs, TXT notes, or CSV exports. CSV files are converted into searchable transaction summaries for retrieval.",
             )
             _render_selected_files_preview(uploaded_files)
@@ -2760,6 +2775,7 @@ def _render_bookkeeping_copilot_tab():
                 "Upload a bookkeeping CSV",
                 type=["csv"],
                 key="bookkeeping_uploader",
+                label_visibility="collapsed",
             )
 
             demo_a_col, demo_b_col = st.columns(2)
@@ -3746,6 +3762,7 @@ def _render_client_dashboard_tab():
                 "Upload transactions CSV (replaces all data)",
                 type=["csv"],
                 key="cd_uploader",
+                label_visibility="collapsed",
             )
             if uploaded is not None:
                 file_key = f"{uploaded.name}_{uploaded.size}"
