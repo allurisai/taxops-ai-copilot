@@ -484,7 +484,13 @@ def _apply_page_style():
             transition: border-color 0.2s ease;
         }
         [data-testid="stFileUploader"] section:hover { border-color: #4F8EF7 !important; }
-        [data-testid="stFileUploader"] label { color: #8892A4 !important; }
+        /* Hide the widget label that duplicates the uploader instruction text */
+        [data-testid="stFileUploader"] > label,
+        [data-testid="stFileUploader"] > div > label { display: none !important; }
+        /* Keep the drop-zone instruction text visible but styled */
+        [data-testid="stFileUploadDropzone"] span { color: #8892A4 !important; font-size: 0.8rem !important; }
+        /* Prevent doubled text from any internal span duplication */
+        [data-testid="stFileUploadDropzone"] small { color: #556070 !important; font-size: 0.72rem !important; }
 
         /* Expanders */
         [data-testid="stExpander"] details {
@@ -498,6 +504,11 @@ def _apply_page_style():
             font-weight: 500;
         }
         [data-testid="stExpander"] summary:hover { color: #4F8EF7 !important; }
+        /* Hide internal arrow/icon elements that leak as "_arr" text */
+        [data-testid="stExpander"] summary svg { display: none !important; }
+        [data-testid="stExpander"] summary [data-testid="stExpanderToggleIcon"] {
+            display: none !important;
+        }
 
         /* Checkbox & Radio */
         div[data-testid="stCheckbox"] label p,
